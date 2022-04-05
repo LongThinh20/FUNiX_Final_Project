@@ -4,6 +4,9 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min";
+import "../node_modules/sweetalert2/src/sweetalert2";
+import "../node_modules/sweetalert2/dist/sweetalert2.min.css";
 
 ReactDOM.render(
   <React.StrictMode>

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2/dist/sweetalert2.js";
 
 import PageNotFound from "./Screens/PageNoteFound/index";
 import CharityManager from "./Screens/Admin/CharityManager";
@@ -22,7 +23,20 @@ function Main() {
   const ORGANIZATION = useSelector((state) => state.organization.organization);
 
   const handleDelete = (id) => {
-    dispatch(deleteCharity(id));
+    Swal.fire({
+      title: "Bạn có chắc muốn xóa không ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Xóa!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      }
+    });
+
+    // dispatch(deleteCharity(id));
   };
 
   const handleAdd = (charity) => {
@@ -41,10 +55,10 @@ function Main() {
     console.log(searchResult);
   };
 
-  useEffect(() => {
-    dispatch(fetchCharity());
-    dispatch(fetchOrganization());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchCharity());
+  //   dispatch(fetchOrganization());
+  // }, [dispatch]);
 
   const CharityWithId = ({ match }) => {
     return (

@@ -1,7 +1,25 @@
 import React, { useState } from "react";
 
 function FilterComponent(props) {
-  const { handleOnSubmit, Organization } = props;
+  const { handleOnSubmit } = props;
+  const [checked, setChecked] = useState([]);
+  const [checkedRadio, setCheckedRadio] = useState();
+
+  const isChecked = (id) => {
+    return checked.includes(id);
+  };
+  const handleChecked = (id) => {
+    setChecked((prev) => {
+      const isCheck = isChecked(id);
+      if (isCheck) {
+        return checked.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const handleChange = (id) => {};
 
   const conditionExpectedMoney = [
     {
@@ -18,28 +36,42 @@ function FilterComponent(props) {
     }
   ];
 
+  const conditionStatus = [
+    {
+      name: "Chương trình chưa bắt đầu",
+      id: 1
+    },
+    {
+      name: "chương trìn đang bắt đầu",
+      id: 2
+    },
+    {
+      name: "Chương trình đã hoàn thành",
+      id: 3
+    }
+  ];
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    console.log(e.target.isDone.value);
   };
 
   return (
-    <div>
+    <div className="mt-3 mb-3 card p-2">
       <h5>Bộ lọc</h5>
       <form onSubmit={(e) => handleSubmit(e)}>
         <div className="d-flex">
-          <p>Chọn tên tổ chức/quỹ từ thiện</p> 
-          {Organization?.map((item) => (
-            <div key={item._id}>
+          <p>Mức tiền dự kiến quyên góp: </p> 
+          {conditionExpectedMoney.map((item) => (
+            <div key={item.id}>
               <input
                 id={item.name}
                 type="radio"
-                name="organizationName"
+                name="expectedMoney"
                 className="ms-3 form-check-input"
-                defaultValue={item._id}
+                checked={checkedRadio === item.id}
+                onChange={() => setCheckedRadio(item.id)}
               />
-              <label className="ms-2 form-check-label " htmlFor={item.name}>
+              <label className="ms-2 " htmlFor={item.name}>
                 {item.name}
               </label>
               <br />
@@ -47,45 +79,24 @@ function FilterComponent(props) {
           ))}
         </div>
         <div className="d-flex">
-          <p>Mức tiền dự kiến quyên góp: </p> 
-          {conditionExpectedMoney.map((item) => (
-            <>
+          {conditionStatus.map((item) => (
+            <div key={item.id}>
               <input
-                id={item.id}
-                type="radio"
-                name="expectedMoney"
-                className="ms-3 form-check-input"
-                value={item.id}
+                className="form-check-input "
+                type="checkbox"
+                id={item.name}
+                name={item.id}
+                checked={isChecked(item.id)}
+                onChange={() => handleChecked(item.id)}
               />
-              <label className="ms-2 " htmlFor={item.id}>
+              <label className="form-check-label ms-1 me-3" htmlFor={item.name}>
                 {item.name}
               </label>
-              <br />
-            </>
+            </div>
           ))}
         </div>
-        <div className="d-flex">
-          <input
-            className="form-check-input ms-2"
-            type="checkbox"
-            id="isDone"
-            name="isDone"
-          />
-          <label className="form-check-label ms-2" htmlFor="isDone">
-            Chương trình quyên góp đã hoàn thành
-          </label>
-          <input
-            className="form-check-input ms-2"
-            type="checkbox"
-            id="isExp"
-            name="isExp"
-          />
-          <label className="form-check-label ms-2" htmlFor="isExp">
-            Chương trình quyên góp hết hạn
-          </label>
-        </div>
 
-        <button type="submit" className="btn btn-primary mx-2">
+        <button type="submit" className="btn btn-primary mt-3 ">
           Tìm
         </button>
       </form>
