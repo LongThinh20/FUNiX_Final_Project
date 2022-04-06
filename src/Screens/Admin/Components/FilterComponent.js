@@ -1,15 +1,46 @@
 import React, { useState } from "react";
 
+const conditionExpectedMoney = [
+  {
+    name: "Dưới 50 triệu",
+    id: 1
+  },
+  {
+    name: "Từ  50 - 200 triệu",
+    id: 2
+  },
+  {
+    name: "Trên 200 triệu",
+    id: 3
+  }
+];
+
+const conditionStatus = [
+  {
+    name: "Chương trình chưa bắt đầu",
+    id: 1
+  },
+  {
+    name: "chương trìn đang bắt đầu",
+    id: 2
+  },
+  {
+    name: "Chương trình đã hoàn thành",
+    id: 3
+  }
+];
+
 function FilterComponent(props) {
   const { handleOnSubmit } = props;
-  const [checked, setChecked] = useState([]);
+  const [checked, setCheckedCheckBox] = useState([]);
   const [checkedRadio, setCheckedRadio] = useState();
 
   const isChecked = (id) => {
     return checked.includes(id);
   };
+
   const handleChecked = (id) => {
-    setChecked((prev) => {
+    setCheckedCheckBox((prev) => {
       const isCheck = isChecked(id);
       if (isCheck) {
         return checked.filter((item) => item !== id);
@@ -19,48 +50,19 @@ function FilterComponent(props) {
     });
   };
 
-  const handleChange = (id) => {};
-
-  const conditionExpectedMoney = [
-    {
-      name: "Dưới 50 triệu",
-      id: 1
-    },
-    {
-      name: "Từ  50 - 200 triệu",
-      id: 2
-    },
-    {
-      name: "Trên 200 triệu",
-      id: 3
-    }
-  ];
-
-  const conditionStatus = [
-    {
-      name: "Chương trình chưa bắt đầu",
-      id: 1
-    },
-    {
-      name: "chương trìn đang bắt đầu",
-      id: 2
-    },
-    {
-      name: "Chương trình đã hoàn thành",
-      id: 3
-    }
-  ];
-
   const handleSubmit = (e) => {
     e.preventDefault();
   };
 
   return (
-    <div className="mt-3 mb-3 card p-2">
-      <h5>Bộ lọc</h5>
+    <section className="filterCharity">
+      <h5 className="fst-italic text-decoration-underline ">Bộ lọc</h5>
       <form onSubmit={(e) => handleSubmit(e)}>
         <div className="d-flex">
-          <p>Mức tiền dự kiến quyên góp: </p> 
+          <p className=" fs-italic text-secondary">
+            Mức tiền dự kiến quyên góp:{" "}
+          </p>
+           
           {conditionExpectedMoney.map((item) => (
             <div key={item.id}>
               <input
@@ -100,7 +102,7 @@ function FilterComponent(props) {
           Tìm
         </button>
       </form>
-    </div>
+    </section>
   );
 }
 

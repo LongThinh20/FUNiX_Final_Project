@@ -14,25 +14,27 @@ function CharityManager(props) {
   };
 
   return (
-    <section className="CharityManagerPage">
+    <section className="   CharityManagerPage">
       <div className="container-fluid">
         <h3>DANH SÁCH CÁC CHƯƠNG TRÌNH QUYÊN GÓP</h3>
-        <div className="row ">
-          <div className="col">
-            <h5>Tên Admin : </h5>
+        <div className="charityManagerDetail ">
+          <h5>
+            Tên Admin : <span>Amin1</span>{" "}
+          </h5>
+        </div>
+        <div className="d-flex justify-content-between charityManagerDetail ">
+          <div>
+            <Filter handleOnSubmit={handleOnSubmit} />
           </div>
-          <div className="col">
+          <div className="align-self-end">
             <NavLink className="btn btn-primary" to="/admin/addCharity">
               TẠO CHƯƠNG TRÌNH QUYÊN GÓP
             </NavLink>
           </div>
         </div>
-        <div>
-          <Filter handleOnSubmit={handleOnSubmit} />
-        </div>
 
-        <div id="charityTable " className="card p-1 mt-2">
-          <Table hover>
+        <div className="charityTable  mt-2">
+          <table className="hover table-striped table-bordered table">
             <thead>
               <tr>
                 <th>Tiêu đề</th>
@@ -56,8 +58,7 @@ function CharityManager(props) {
                 <td>
                   <img
                     src="https://momo.vn/_next/image?url=https%3A%2F%2Fstatic.mservice.io%2Fblogscontents%2Fmomo-upload-api-211124181421-637733744614202519.jpg&w=1200&q=75"
-                    width="100"
-                    height="100"
+                    className="img-fluid"
                     alt="image"
                   />
                 </td>
@@ -92,7 +93,7 @@ function CharityManager(props) {
                     Xóa
                   </button>
                   <NavLink
-                    to={`/admin/addCharity`}
+                    to={`/admin/addCharity/123`}
                     className="btn btn-warning mt-2 "
                   >
                     Sửa
@@ -146,7 +147,7 @@ function CharityManager(props) {
               <h5>Chưa có dữ liệu</h5>
             )}
           </tbody> */}
-          </Table>
+          </table>
         </div>
       </div>
     </section>

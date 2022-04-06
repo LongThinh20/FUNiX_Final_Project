@@ -3,7 +3,7 @@ import React from "react";
 function index() {
   return (
     <div>
-      <h2>Page Notw Found!!!</h2>
+      <h2>Page Not Found!!!</h2>
     </div>
   );
 }

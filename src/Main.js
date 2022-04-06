@@ -63,9 +63,8 @@ function Main() {
   const CharityWithId = ({ match }) => {
     return (
       <AddCharityPage
-        organization={ORGANIZATION}
         getCharityUpdate={handleUpdate}
-        charity={CHARITY.filter((item) => item._id === match.params.charityId)}
+        Id={match.params.charityId}
       />
     );
   };
