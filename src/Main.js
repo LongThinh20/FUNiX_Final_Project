@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Switch, Route } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 
 import PageNotFound from "./Screens/PageNoteFound/index";
@@ -8,19 +7,17 @@ import CharityManager from "./Screens/Admin/CharityManager";
 import Header from "./Screens/Admin/Components/Header";
 import AddCharityPage from "./Screens/Admin/AddCharityPage";
 
-import {
-  fetchCharity,
-  deleteCharity,
-  addCharity,
-  fetchOrganization,
-  editCharity
-} from "./Redux/actionCreators";
+import charities from "./data/data";
 
 function Main() {
-  const dispatch = useDispatch();
+  //test
 
-  const CHARITY = useSelector((state) => state.charity.charity);
-  const ORGANIZATION = useSelector((state) => state.organization.organization);
+  const [resultFilter, setResultFilter] = useState();
+  const [checked, setCheckedCheckBox] = useState();
+  const [checkedRadio, setCheckedRadio] = useState();
+  const CHARITIES = charities;
+
+  //
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -35,36 +32,70 @@ function Main() {
         Swal.fire("Deleted!", "Your file has been deleted.", "success");
       }
     });
-
-    // dispatch(deleteCharity(id));
   };
 
-  const handleAdd = (charity) => {
-    dispatch(addCharity(charity));
+  const handleAdd = (charity) => {};
+
+  const handleUpdate = (charity) => {};
+  //handle filter
+  const handeFilter = (condition) => {
+    console.log(condition);
+    function xetdk(value) {
+      if (this.expectedMoney === 1) {
+        return value.expectedMoney < 50000000 && this.status === value.status;
+      } else if (this.expectedMoney === 2) {
+        return (
+          value.expectedMoney >= 50000000 &&
+          value.expectedMoney <= 200000000 &&
+          this.status === value.status
+        );
+      } else {
+        return value.expectedMoney > 200000000 && this.status === value.status;
+      }
+    }
+
+    function xetdk1(value) {
+      if (this.expectedMoney === 1) {
+        return value.expectedMoney < 50000000;
+      } else if (this.expectedMoney === 2) {
+        return (
+          value.expectedMoney >= 50000000 && value.expectedMoney <= 200000000
+        );
+      } else {
+        return value.expectedMoney > 200000000;
+      }
+    }
+
+    function xetdk2(value) {
+      return this.status === value.status;
+    }
+
+    if (condition.status === undefined) {
+      setResultFilter(CHARITIES.filter(xetdk1, condition));
+    }
+    if (condition.expectedMoney === undefined) {
+      setResultFilter(CHARITIES.filter(xetdk2, condition));
+    }
+    if (condition.expectedMoney && condition.status) {
+      setResultFilter(CHARITIES.filter(xetdk, condition));
+    }
   };
 
-  const handleUpdate = (charity) => {
-    dispatch(editCharity(charity));
+  const handleResetFilter = () => {
+    setResultFilter();
+    setCheckedCheckBox();
+    setCheckedRadio();
   };
 
-  const handleSearch = (text) => {
-    const searchResult = CHARITY.filter((charity) =>
-      charity.name.toUpperCase().includes(text.toUpperCase())
-    );
-
-    console.log(searchResult);
-  };
-
-  // useEffect(() => {
-  //   dispatch(fetchCharity());
-  //   dispatch(fetchOrganization());
-  // }, [dispatch]);
-
+  //get charity for EditCharity Page
   const CharityWithId = ({ match }) => {
     return (
       <AddCharityPage
         getCharityUpdate={handleUpdate}
         Id={match.params.charityId}
+        charity={charities.filter(
+          (charity) => charity.id === parseInt(match.params.charityId, 10)
+        )}
       />
     );
   };
@@ -78,10 +109,15 @@ function Main() {
           path="/admin/charity"
           render={() => (
             <CharityManager
-              Organization={ORGANIZATION}
-              Charity={CHARITY}
+              charities={CHARITIES}
+              resultFilter={resultFilter}
               deleteCharity={handleDelete}
-              handleSearch={handleSearch}
+              filterCharity={handeFilter}
+              resetFilter={handleResetFilter}
+              checked={checked}
+              setCheckedCheckBox={setCheckedCheckBox}
+              checkedRadio={checkedRadio}
+              setCheckedRadio={setCheckedRadio}
             />
           )}
         />

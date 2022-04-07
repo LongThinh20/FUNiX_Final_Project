@@ -1,43 +1,73 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { NavLink } from "react-router-dom";
+import moment from "moment";
 
 const schema = yup
   .object()
   .shape({
-    title: yup.string().required("Tiêu đề không được rỗng !"),
-    image: yup.string().required("Hình ảnh không được rỗng!"),
-    summary: yup.string().required("Tóm tắt không được rỗng!"),
-    content: yup.string().required("Nội dung không được rỗng !"),
-    startDate: yup.string().required("Ngày bắt đầu không được rỗng !"),
-    endDate: yup.string().required("Ngày   kết thúc không được rỗng !"),
-    expectedMoney: yup.number().nullable().required("132"),
-    organizaion: yup.string().required("Tên tổ chức từ thiện không được rỗng !")
+    title: yup
+      .string()
+      .min(10, "Tối thiều 10 ký tự ...!")
+      .required("Chưa nhập tiêu đề ...!"),
+    image: yup.string().required("Chưa chọn hình ảnh ...!"),
+    summary: yup
+      .string()
+      .min(10, "Tối thiều 10 ký tự ...!")
+      .required("Chưa nhập tóm tắt ...!"),
+    content: yup
+      .string()
+      .min(10, "Tối thiều 10 ký tự ...!")
+      .required("Chưa nhập nội dung ...!"),
+    status: yup.string().required("Chưa chọn trạng thái ...!"),
+    startDate: yup.string().required("Chưa chọn ngày bắt đầu ...!"),
+    endDate: yup.string().required("Chưa chọn ngày kết thúc ...!"),
+    expectedMoney: yup
+      .number()
+      .min(5000000, "Số tiền dự kiến tối thiểu là 5 triệu ...!")
+      .typeError("Chưa nhập số tiền ...!")
+
+      .required("Chưa nhập số tiền ...!")
+      .nullable(),
+    organization: yup.string().required("Chưa nhập tên tổ chức ...!")
   })
   .required();
 
 function AddCharity(props) {
-  const { Id } = props;
+  const { Id, charity } = props;
 
   const defaultValues = {
-    tite: "",
+    id: "",
+    title: "",
     summary: "",
     content: "",
     image: "",
     expectedMoney: null,
+    userId: "",
+    date: "",
+    status: "",
     startDate: "",
     endDate: "",
-    organizaion: ""
+    organization: ""
   };
+
+  if (charity) {
+    for (let key in charity[0]) {
+      defaultValues[key] = charity[0][key];
+    }
+    defaultValues.startDate = moment(charity[0].startDate).format("YYYY-MM-DD");
+    defaultValues.endDate = moment(charity[0].endDate).format("YYYY-MM-DD");
+  }
 
   const {
     handleSubmit,
     register,
     reset,
     watch,
+
     formState: { errors }
   } = useForm({
     mode: "onTouched",
@@ -45,35 +75,37 @@ function AddCharity(props) {
     defaultValues
   });
 
-  const tesst = watch();
+  const watchAllFields = watch();
 
   const onSubmit = (data) => {
     const formData = new FormData();
 
-    for (let key in tesst) {
+    for (let key in watchAllFields) {
       if (key === "image") {
-        formData.append(key, tesst[key][0]);
+        formData.append(key, watchAllFields[key][0]);
       } else {
         formData.append(key, data[key]);
       }
     }
 
-    // for (let value of formData.values()) {
-    //   console.log("fromdata", value);
-    // }
+    //
+    for (let value of formData.values()) {
+      console.log("fromdata", value);
+    }
+    //
   };
 
   const handleReset = () => {
     return reset(
       {
-        tite: "",
+        title: "",
         summary: "",
         content: "",
         image: "",
         expectedMoney: null,
         startDate: "",
         endDate: "",
-        organizaion: ""
+        organization: ""
       },
       {
         keepErrors: false,
@@ -109,14 +141,15 @@ function AddCharity(props) {
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <div className="form-group">
             <label htmlFor="title" className="form-label">
-              Tiêu đề
+              Tiêu đề :
             </label>
             <input
+              placeholder="Nhập nội dung tiêu đề ..."
               type="text"
               className={`form-control ${errors.title ? "isValid" : ""} `}
               name="title"
               id="title"
-              placeholder="Chọn hình ảnh"
+              defaultValue="123213"
               {...register("title")}
             />
             <div className="text-danger ">{errors.title?.message}</div>
@@ -139,6 +172,7 @@ function AddCharity(props) {
               Tóm tắt
             </label>
             <textarea
+              placeholder="Nhập nội dung tóm tắt ..."
               className={`form-control ${errors.summary ? "isValid" : ""} `}
               name="summary"
               id="summary"
@@ -153,6 +187,7 @@ function AddCharity(props) {
               Nội dung :
             </label>
             <textarea
+              placeholder="Nhập nội dung ..."
               className={`form-control ${errors.content ? "isValid" : ""} `}
               name="content"
               id="content"
@@ -162,54 +197,82 @@ function AddCharity(props) {
             />
             <div className="text-danger ">{errors.content?.message}</div>
           </div>
-          <label htmlFor="expectedMoney" className="form-label">
-            Số tiền dự kiến quyên góp :
-          </label>
-          <input
-            type="number"
-            className={`form-control ${errors.expectedMoney ? "isValid" : ""} `}
-            name="expectedMoney"
-            id="expectedMoney"
-            placeholder=""
-            {...register("expectedMoney")}
-          />
-          <div className="text-danger ">{errors.expectedMoney?.message}</div>
-          <label htmlFor="startDate" className="form-label">
-            Ngày bắt đầu :
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.startDate ? "isValid" : ""} `}
-            name="startDate"
-            id="startDate"
-            placeholder=""
-            {...register("startDate")}
-          />
-          <div className="text-danger ">{errors.startDate?.message}</div>
-          <label htmlFor="endDate" className="form-label">
-            Ngày kết thúc:
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.endDate ? "isValid" : ""} `}
-            name="endDate"
-            id="endDate"
-            placeholder=""
-            {...register("endDate")}
-          />
-          <div className="text-danger ">{errors.endDate?.message}</div>
-          <label htmlFor="organization" className="form-label">
-            Tên tổ chứ/quỹ từ thiện :
-          </label>
-          <input
-            type="text"
-            className={`form-control ${errors.organizaion ? "isValid" : ""} `}
-            name="organization"
-            id="organization"
-            placeholder=""
-            {...register("organizaion")}
-          />
-          <div className="text-danger ">{errors.organizaion?.message}</div>
+          <div className="form-group">
+            <label htmlFor="expectedMoney" className="form-label">
+              Số tiền dự kiến quyên góp :
+            </label>
+            <input
+              placeholder="Nhập số tiền dự kiến ..."
+              type="number"
+              className={`form-control ${
+                errors.expectedMoney ? "isValid" : ""
+              } `}
+              name="expectedMoney"
+              id="expectedMoney"
+              {...register("expectedMoney")}
+            />
+            <div className="text-danger ">{errors.expectedMoney?.message}</div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Trạng thái :</label>
+            <select
+              {...register("status")}
+              name="status"
+              className={` form-select ${errors.status ? "isValid" : ""} `}
+            >
+              <option value="" disabled>
+                --Chọn một trạng thái--
+              </option>
+              <option value="notStart">Chưa bắt đầu</option>
+              <option value="isStart">Đang bắt đầu</option>
+              <option value="isDone" disabled>
+                Đã hoàn thành
+              </option>
+            </select>
+            <div className="text-danger ">{errors.status?.message}</div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="startDate" className="form-label">
+              Ngày bắt đầu :
+            </label>
+            <input
+              type="date"
+              className={`form-control ${errors.startDate ? "isValid" : ""} `}
+              name="startDate"
+              id="startDate"
+              placeholder=""
+              {...register("startDate")}
+            />
+            <div className="text-danger ">{errors.startDate?.message}</div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="endDate" className="form-label">
+              Ngày kết thúc:
+            </label>
+            <input
+              type="date"
+              className={`form-control ${errors.endDate ? "isValid" : ""} `}
+              name="endDate"
+              id="endDate"
+              {...register("endDate")}
+            />
+            <div className="text-danger ">{errors.endDate?.message}</div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="organization" className="form-label">
+              Tên tổ chứ/quỹ từ thiện :
+            </label>
+            <input
+              type="text"
+              className={`form-control ${
+                errors.organization ? "isValid" : ""
+              } `}
+              name="organization"
+              id="organization"
+              {...register("organization")}
+            />
+            <div className="text-danger ">{errors.organization?.message}</div>
+          </div>
           <button className="btn btn-primary mt-4" type="submit">
             {Id ? "Cập nhật" : "Thêm"}
           </button>

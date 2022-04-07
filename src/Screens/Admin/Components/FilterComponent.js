@@ -17,41 +17,38 @@ const conditionExpectedMoney = [
 
 const conditionStatus = [
   {
-    name: "Chương trình chưa bắt đầu",
-    id: 1
+    name: "Chưa bắt đầu",
+    id: "notStart"
   },
   {
-    name: "chương trìn đang bắt đầu",
-    id: 2
+    name: "Đang bắt đầu",
+    id: "isStart"
   },
   {
-    name: "Chương trình đã hoàn thành",
-    id: 3
+    name: "Đã hoàn thành",
+    id: "isDone"
   }
 ];
 
 function FilterComponent(props) {
-  const { handleOnSubmit } = props;
-  const [checked, setCheckedCheckBox] = useState([]);
-  const [checkedRadio, setCheckedRadio] = useState();
-
-  const isChecked = (id) => {
-    return checked.includes(id);
-  };
-
-  const handleChecked = (id) => {
-    setCheckedCheckBox((prev) => {
-      const isCheck = isChecked(id);
-      if (isCheck) {
-        return checked.filter((item) => item !== id);
-      } else {
-        return [...prev, id];
-      }
-    });
-  };
+  const {
+    filterCharity,
+    resetFilter,
+    checked,
+    setCheckedCheckBox,
+    checkedRadio,
+    setCheckedRadio
+  } = props;
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const conditionFilter = {
+      expectedMoney: checkedRadio,
+      status: checked
+    };
+
+    filterCharity(conditionFilter);
   };
 
   return (
@@ -81,25 +78,34 @@ function FilterComponent(props) {
           ))}
         </div>
         <div className="d-flex">
+          <p className=" fs-italic text-secondary">Trạng thái chương trình :</p>
           {conditionStatus.map((item) => (
             <div key={item.id}>
               <input
-                className="form-check-input "
-                type="checkbox"
                 id={item.name}
-                name={item.id}
-                checked={isChecked(item.id)}
-                onChange={() => handleChecked(item.id)}
+                type="radio"
+                name="status"
+                className="ms-3 form-check-input"
+                checked={checked === item.id}
+                onChange={() => setCheckedCheckBox(item.id)}
               />
-              <label className="form-check-label ms-1 me-3" htmlFor={item.name}>
+              <label className="ms-2 " htmlFor={item.name}>
                 {item.name}
               </label>
+              <br />
             </div>
           ))}
         </div>
 
         <button type="submit" className="btn btn-primary mt-3 ">
           Tìm
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary mt-3 ms-2"
+          onClick={() => resetFilter()}
+        >
+          Reset
         </button>
       </form>
     </section>
