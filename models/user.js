@@ -3,19 +3,14 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-  name: String,
-  phoneNumber: { type: String },
-  password: { type: String },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  password: { type: String, required: true },
   role: {
     type: String,
     default: "user"
   },
-  charityList: [
-    {
-      charityId: { type: Schema.Types.ObjectId, ref: "Charity" },
-      donate: { type: Number, default: 0 }
-    }
-  ]
+  status: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model("User", userSchema);

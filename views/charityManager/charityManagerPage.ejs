@@ -1,0 +1,100 @@
+<%- include('../includes/head.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
+
+        <section class="charityManager">
+            <div class="container-fluid">
+                <h4> QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP </h4>
+
+                <a class="btn btn-primary" href="/admin/addCharity">TẠO MỚI CHƯƠNG TRÌNH </a>
+
+
+
+                <div class="charityManagerTable">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tiêu đề </th>
+                                <th scope="col">Hình ảnh </th>
+                                <th scope="col">Tóm tắt </th>
+                                <th scope="col">Nội dung</th>
+                                <th>Người tạo</th>
+                                <th>Ngày tạo</th>
+                                <th>Số tiền quyên góp dự kiến</th>
+                                <th>Trạng thái </th>
+                                <th>Ngày bắt đầu - kết thúc</th>
+                                <th>Tên đơn vị/quỹ từ thiện</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <% if(charities){ %>
+                                <% for(let charity of charities ) { %>
+                                    <tr>
+                                        <td>
+                                            <%= charity.title %>
+                                        </td>
+                                        <td>
+                                            <img src=<%=charity.image %> class="img-fluid"/>
+
+                                        </td>
+                                        <td>
+                                            <%= charity.summary %>
+                                        </td>
+                                        <td>
+                                            <%= charity.content %>
+                                        </td>
+                                        <td>
+                                            ...
+                                        </td>
+                                        <td>
+                                            <%= moment(charity.date).format("DD/MM/YYYY") %>
+                                        </td>
+                                        <td>
+                                            <%= charity.expectedMoney %>
+                                        </td>
+                                        <td>
+                                            ...
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <%= moment(charity.startDate).format("DD/MM/YYYY") %>
+                                            </span>
+                                            <span>
+                                                <%= moment(charity.endDate).format("DD/MM/YYYY") %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= charity.organization %>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-danger">Xóa</button>
+                                            <button class="btn btn-warning mt-2">Sửa</button>
+                                        </td>
+
+
+                                    </tr>
+                                    <% } %>
+                                        <% } %>
+
+                        </tbody>
+                    </table>
+                </div>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </section>
+
+        <%- include('../includes/end.ejs') %>

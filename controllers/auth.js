@@ -13,11 +13,11 @@ exports.postSigup = (req, res, next) => {
     .then((hashPassword) => {
       console.log(hashPassword);
       const newUser = new User({
-        name: "DUONG DUY KHIEM",
-        phoneNumber: "01234538016",
+        name: "test10",
+        email: "test10@gmail.com",
         password: hashPassword,
         role: "user",
-        charityList: []
+        status: false
       });
       return newUser.save();
     })

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const MONGODB_URI =
@@ -31,6 +32,12 @@ const fileFilter = (req, file, cb) => {
 
 const authRoute = require("./routes/auth");
 const adminRoute = require("./routes/admin");
+
+app.set("view engine", "ejs");
+app.set("views", "views");
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static("images"));
 
 app.use(cors({ optionsSuccessStatus: 200, origin: "http://localhost:3000" }));
 

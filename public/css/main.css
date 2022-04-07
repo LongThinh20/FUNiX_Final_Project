@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+/* charityManager */
+.charityManager {
+  padding: 50px 0;
+}
+
+.charityManager .charityManagerTable {
+  width: 100%;
+  overflow-x: scroll;
+}
+.charityManager .charityManagerTable table {
+  width: 2000px;
+}
+/* End charityManager */
+/*addCharity Page*/
+.addCharityPage {
+  padding: 50px 0;
+}
+/*End addCharity Page*/
