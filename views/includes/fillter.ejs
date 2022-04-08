@@ -1,0 +1,47 @@
+<form method="post" action="/admin/filterCharity">
+    <div>
+        <span>Tiền quyên góp : </span>
+        <span>
+            <input class="form-check-input" type="radio" name="expectedMoney" value="1" id="1">
+            <label class="form-check-label me-3" for="1">
+                Nhỏ hơn 50 triệu
+            </label>
+        </span>
+        <span>
+            <input class="form-check-input" type="radio" name="expectedMoney" value="2" id="2">
+            <label class="form-check-label me-3" for="2">
+                Từ 50 - 200 triệu
+            </label>
+        </span>
+        <span>
+            <input class="form-check-input" type="radio" name="expectedMoney" value="3" id="3">
+            <label class="form-check-label me-3" for="3">
+                Lớn hơn 200 triệu
+            </label>
+        </span>
+    </div>
+    <div>
+        <span>Trạng thái: </span>
+        <span>
+            <input class="form-check-input" type="radio" name="status" value="notStart" id="12">
+            <label class="form-check-label me-3" for="12">
+                Chưa bắt đầu
+            </label>
+        </span>
+        <span>
+            <input class="form-check-input" type="radio" name="status" value="isStart" id="22">
+            <label class="form-check-label me-3" for="22">
+                Đang bắt đầu
+            </label>
+        </span>
+        <span>
+            <input class="form-check-input" type="radio" name="status" value="isDone" id="33">
+            <label class="form-check-label me-3" for="33">
+                Đã hoàn thành
+            </label>
+        </span>
+    </div>
+
+    <button class="btn btn-primary mt-4" type="submit"> Tìm </button>
+
+</form>

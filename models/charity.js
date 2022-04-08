@@ -10,13 +10,9 @@ const charitySchema = new Schema({
   userId: [{ type: Schema.Types.ObjectId, ref: "User" }],
   date: { type: Date, default: new Date() },
   expectedMoney: { type: Number, required: true },
-  timesDonate: {
-    type: Number,
-    default: 0
-  },
+  status: { type: String, default: "notStart", required: true },
   startDate: { type: Date, default: true },
   endDate: { type: Date, default: true },
   organization: { type: String }
 });
-
 module.exports = mongoose.model("Charity", charitySchema);

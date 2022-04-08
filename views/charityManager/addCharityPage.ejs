@@ -1,27 +1,102 @@
 <%- include('../includes/head.ejs') %>
     <%- include('../includes/navigation.ejs') %>
-
         <section class="addCharityPage">
             <div class="container">
-                <h4> THÊM CHƯƠNG TRÌNH TỪ THIỆN </h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin/charity">Danh sách chương trình</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <%= charity ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
+                        </li>
+                    </ol>
+                </nav>
+                <h4>
+                    <%= charity ? 'CẬP NHẬT CHƯƠNG TRÌNH TỪ THIỆN ' :'THÊM CHƯƠNG TRÌNH TỪ THIỆN'%>
+                </h4>
                 <div class="addCharityForm">
-                    <form>
+                    <form enctype="multipart/form-data" method="post" action=<%=charity ? '/admin/editCharity'
+                        :'/admin/addCharity' %> >
                         <div class="form-group">
-                            <label for="exampleInputEmail1" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1"
-                                aria-describedby="emailHelp">
-                            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            <label for="title" class="form-label">Tiêu đề : </label>
+                            <textarea class="form-control" name="title" rows="2"><%= charity ? charity.title :'' %> 
+                            </textarea>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="exampleInputPassword1" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="exampleInputPassword1">
+                        <div class="form-group ">
+                            <label for="image" class="form-label">Hình ảnh :</label>
+                            <input type="file" class="form-control" id="image" name="image" value=<%=charity ?
+                                charity.image :'' %>
+                            >
+                        </div>
+                        <div class="form-group ">
+                            <label for="summary" class="form-label">Tóm tắt : </label>
+                            <textarea class="form-control" name="summary" rows="2">
+                                <%= charity ? charity.summary :'' %> 
+                            </textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary ">Submit</button>
+                        <div class="form-group">
+                            <label for="content" class="form-label">Nội dung :</label>
+                            <textarea class="form-control" name="content" rows="3">
+                                <%= charity ? charity.content:'' %> 
+                            </textarea>
+                        </div>
+                        <div class="form-group ">
+                            <label for="expectedMoney" class="form-label">Số tiền dự kiến :</label>
+                            <input type="number" class="form-control" id="expectedMoney" name="expectedMoney"
+                                value=<%=charity? charity.expectedMoney :'' %>
+                            >
+                        </div>
+                        <div class="form-group ">
+                            <label for="status" class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status">
+
+                                <% if(charity){ %>
+                                    <option <%=charity.status==='notStart' ? 'selected' :'' %>
+                                        value="notStart">Chưa bắt
+                                        đầu
+                                    </option>
+                                    <option <%=charity.status==='isStart' ? 'selected' :'' %>
+                                        value="isStart">Đang bắt
+                                        đầu
+                                    </option>
+                                    <option <%=charity.status==='isDone' ? 'selected' :'' %>
+                                        value="isDone">Đã hoàn
+                                        thành
+                                    </option>
+                                    <% } else {%>
+                                        <option> --Chọn trạng thái-- </option>
+                                        <option value="notStart">Chưa bắt đầu </option>
+                                        <option value="isStart">Đang bắt đầu </option>
+                                        <option value="isDone">Đã hoàn thành </option>
+
+                                        <% } %>
+                            </select>
+                        </div>
+                        <div class="form-group ">
+                            <label for="startDate" class="form-label">Ngày bắt đầu :</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" value=<%=charity?
+                                moment(charity.startDate).format('YYYY-MM-DD') :'' %>>
+                        </div>
+                        <div class="form-group ">
+                            <label for="endDate" class="form-label">Ngày kết thúc:</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" value=<%=charity ?
+                                moment(charity.endDate).format('YYYY-MM-DD') :'' %> >
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="organization" class="form-label">Tên tổ chức/quỹ từ thiện :</label>
+                            <input type="text" class="form-control" id="organization" name="organization"
+                                value=<%=charity?charity.organization :'' %> >
+                        </div>
+
+                        <% if(charity){ %>
+                            <input type="hidden" value=<%=charity._id %> name="id" />
+                            <% } %>
+                                <button type="submit" class="btn btn-primary ">
+                                    <%= charity ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
+                                </button>
+                                <a class="btn btn-secondary" href="/admin/charity">Hủy</a>
                     </form>
                 </div>
             </div>
-
         </section>
-
         <%- include('../includes/end.ejs') %>

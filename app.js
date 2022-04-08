@@ -38,9 +38,7 @@ app.set("views", "views");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static("images"));
-
 app.use(cors({ optionsSuccessStatus: 200, origin: "http://localhost:3000" }));
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
