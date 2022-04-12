@@ -4,12 +4,6 @@ const route = express.Router();
 
 const adminController = require("../controllers/admin");
 
-// route.get("/admin/post", adminController.postOrganizationTest);
-
-// route.get("/admin/post1", adminController.postCharityTest);
-
-//test
-
 //get charity List
 route.get("/admin/charity", adminController.getCharity);
 

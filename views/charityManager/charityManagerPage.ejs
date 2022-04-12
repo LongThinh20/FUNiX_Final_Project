@@ -2,6 +2,9 @@
     <%- include('../includes/navigation.ejs') %>
 
         <section class="charityManager">
+
+
+
             <div class="container-fluid">
                 <h4> QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP </h4>
                 <%- include('../includes/fillter.ejs') %>
@@ -15,7 +18,8 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteManyLabel">Bạn có muốn xóa không ?</h5>
+                                        <h5 class="modal-title" id="deleteManyLabel">Bạn có muốn xóa không ?
+                                        </h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -66,7 +70,7 @@
                                                     <%= charity.title %>
                                                 </td>
                                                 <td>
-                                                    <img src=<%=charity.image %> class="img-fluid"/>
+                                                    <img src='/<%=charity.image %>' class="img-fluid" />
 
                                                 </td>
                                                 <td>

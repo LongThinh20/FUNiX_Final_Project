@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const charitySchema = new Schema({
-  title: { type: String, required: true },
+  title: {
+    type: String,
+    required: true,
+    validate: [checkLength, "tesssssssssssssss"]
+  },
   image: { type: String, required: true },
   summary: { type: String, required: true },
   content: { type: String, required: true },
@@ -15,4 +19,9 @@ const charitySchema = new Schema({
   endDate: { type: Date, default: true },
   organization: { type: String }
 });
+
 module.exports = mongoose.model("Charity", charitySchema);
+
+function checkLength(value) {
+  return value.length > 3;
+}

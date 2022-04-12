@@ -14,7 +14,10 @@ const storegeFile = multer.diskStorage({
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, "-") + "_" + file.originalname
+    );
   }
 });
 
@@ -30,17 +33,20 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const imagesFolderPath = path.join(__dirname, "images");
+
 const authRoute = require("./routes/auth");
 const adminRoute = require("./routes/admin");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/images", express.static("images"));
 app.use(cors({ optionsSuccessStatus: 200, origin: "http://localhost:3000" }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(imagesFolderPath));
+
 app.use(
   multer({ storage: storegeFile, fileFilter: fileFilter }).single("image")
 );

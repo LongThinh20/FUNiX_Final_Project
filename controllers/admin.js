@@ -1,9 +1,8 @@
 const Charity = require("../models/charity");
-const mongoose = require("mongoose");
-const path = require("path");
 const moment = require("moment");
 
 const ITEMS_PER_PAGE = 3;
+let errorMess = "";
 
 //GET / admin / getCharity;
 const getCharity = async (req, res) => {
@@ -18,12 +17,13 @@ const getCharity = async (req, res) => {
     res.render("charityManager/charityManagerPage", {
       charities,
       moment,
+      errorMess: errorMess,
       title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP",
       currentPage: page,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
     });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
   }
 };
 
@@ -39,7 +39,8 @@ const getAddCharityForm = async (req, res) => {
   res.render("charityManager/addCharityPage", {
     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
     charity: charity,
-    moment
+    moment,
+    error: ""
   });
 };
 
@@ -58,10 +59,10 @@ const addCharity = async (req, res) => {
   const image = req.file.path;
   try {
     const newCharity = new Charity({
-      title,
-      summary,
+      title: title.trim(),
+      summary: summary.trim(),
       image,
-      content,
+      content: content.trim(),
       expectedMoney,
       status,
       date: new Date(),
@@ -72,13 +73,22 @@ const addCharity = async (req, res) => {
     });
 
     const result = await newCharity.save();
+
+    console.log(result);
+
     console.log("POST CHARITY!");
 
     res.redirect("/admin/charity");
 
     // res.status(201).send(result);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
+    res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: "",
+      moment,
+      error: err.message
+    });
   }
 };
 
@@ -97,23 +107,30 @@ const editCharity = (req, res) => {
     organization
   } = req.body;
 
-  const image = req.file.path;
+  let image = req.body.image;
 
-  const objEdit = {
-    title,
-    image,
-    summary,
-    content,
-    expectedMoney,
-    status,
-    startDate,
-    endDate,
-    organization
-  };
+  if (image) {
+    image = req.file.path;
+  }
 
-  Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
-    res.redirect("/admin/charity");
-  });
+  try {
+    const objEdit = {
+      title,
+      image,
+      summary,
+      content,
+      expectedMoney,
+      status,
+      startDate,
+      endDate,
+      organization
+    };
+    Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
+      res.redirect("/admin/charity");
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
 };
 
 // DELETE / admin / deleteCharity;
@@ -138,11 +155,39 @@ const deleteManyCharity = async (req, res) => {
   const { checkDelete } = req.body;
 
   try {
-    const result = await Charity.deleteMany({ _id: checkDelete });
+    console.log(checkDelete);
 
-    console.log("DELETE MANY CHARITY !");
+    async function deleteOne(item) {
+      const result = await Charity.deleteOne({ _id: item });
+      console.log("XÓA THÀNH CÔNG !");
+      res.redirect("/admin/charity");
+    }
 
-    res.redirect("/admin/charity");
+    async function deleteMany(array) {
+      let flag = true;
+      for (let i of array) {
+        const fl = await Charity.findById(i.trim());
+        if (!fl) flag = false;
+      }
+
+      if (!flag) {
+        res.redirect("/admin/charity");
+        throw new Error("XÓA KHÔNG THÀNH CÔNG !!!");
+      }
+      const result = await Charity.deleteMany({ _id: array });
+      console.log("XÓA THÀNH CÔNG !");
+      res.redirect("/admin/charity");
+    }
+
+    async function testt(array) {
+      if (Array.isArray(array)) {
+        deleteMany(array);
+      } else {
+        deleteOne(array);
+      }
+    }
+
+    testt(checkDelete);
   } catch (err) {
     console.error(err);
   }
@@ -152,31 +197,34 @@ const deleteManyCharity = async (req, res) => {
 
 const filterCharity = async (req, res) => {
   const { status, expectedMoney } = req.body;
-  let test1;
+  let result;
 
   try {
-    const test = await Charity.find({
-      status: status
-    });
+    if (!expectedMoney) result = await Charity.find({ status: status });
 
-    if (expectedMoney === "1") {
-      test1 = await Charity.find({
-        expectedMoney: { $lte: 50000000 }
-      });
+    if (!status) {
+      switch (expectedMoney) {
+        case "1":
+          console.log("1");
+          console.log(
+            await Charity.find({
+              expectedMoney: { $lte: 50000000 - 1 }
+            })
+          );
+          break;
+        case "2":
+          result = await Charity.find({
+            expectedMoney: { $gte: 50000000, $lte: 200000000 }
+          });
+          break;
+        default:
+          result = await Charity.find({
+            expectedMoney: { $gte: 200000000 + 1 }
+          });
+          break;
+      }
     }
-
-    if (expectedMoney === "2") {
-      test1 = await Charity.find({
-        expectedMoney: { $gte: 50000001, $lte: 200000000 }
-      });
-    }
-    if (expectedMoney === "3") {
-      test1 = await Charity.find({
-        expectedMoney: { $gte: 200000001 }
-      });
-    }
-
-    console.log(test1);
+    console.log(result);
   } catch (err) {
     console.log(err);
   }
@@ -186,42 +234,6 @@ const filterCharity = async (req, res) => {
 //   const fileName = req.params.imageName;
 
 //   res.sendFile(path.resolve(`./images/${fileName}`));
-// };
-
-//POST /admin/editCharity
-// exports.editCharity = (req, res) => {
-//   const {
-//     id,
-//     name,
-//     expectedMoney,
-//     description,
-//     startDate,
-//     endDate,
-//     organizationId
-//   } = req.body;
-//   const image = req.file.path;
-
-//   Charity.findById(id)
-//     .then((result) => {
-//       deleteFile(result.image);
-//     })
-//     .catch((err) => console.log(err));
-
-//   const objUpdate = {
-//     name,
-//     expectedMoney,
-//     image,
-//     description,
-//     ExpDate: {
-//       startDate: new Date(startDate),
-//       endDate: new Date(endDate)
-//     },
-//     organizationId: [mongoose.Types.ObjectId(organizationId.trim())]
-//   };
-
-//   Charity.findByIdAndUpdate({ _id: id }, objUpdate, (result) => {
-//     res.send(result);
-//   });
 // };
 
 module.exports = {
