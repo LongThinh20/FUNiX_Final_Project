@@ -2,12 +2,12 @@ const Charity = require("../models/charity");
 const moment = require("moment");
 
 const ITEMS_PER_PAGE = 3;
-let errorMess = "";
 
 //GET / admin / getCharity;
-const getCharity = async (req, res) => {
+const getCharity = async (req, res, mess = "", status = "") => {
   const page = +req.query.page || 1;
   let totalItems;
+
   try {
     totalItems = await Charity.find().countDocuments();
     const charities = await Charity.find()
@@ -17,6 +17,8 @@ const getCharity = async (req, res) => {
     res.render("charityManager/charityManagerPage", {
       charities,
       moment,
+      message: mess,
+      status: status,
       title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP",
       currentPage: page,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
@@ -34,7 +36,6 @@ const getAddCharityForm = async (req, res) => {
   if (charityId) {
     charity = await Charity.findById(charityId.trim());
   }
-
   res.render("charityManager/addCharityPage", {
     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
     charity: charity,
@@ -55,7 +56,20 @@ const addCharity = async (req, res) => {
     endDate,
     organization
   } = req.body;
-  const image = req.file.path;
+
+  const imageFile = req.file;
+
+  if (!imageFile) {
+    res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: "",
+      moment,
+      error: "Thêm không thành công ! "
+    });
+  }
+
+  const image = imageFile.path;
+
   try {
     const newCharity = new Charity({
       title: title.trim(),
@@ -73,8 +87,6 @@ const addCharity = async (req, res) => {
 
     const result = await newCharity.save();
 
-    console.log(result);
-
     console.log("POST CHARITY!");
 
     res.redirect("/admin/charity");
@@ -86,7 +98,7 @@ const addCharity = async (req, res) => {
       title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
       charity: "",
       moment,
-      error: err.message
+      error: "Thêm không thành công"
     });
   }
 };
@@ -132,34 +144,18 @@ const editCharity = (req, res) => {
   }
 };
 
-// DELETE / admin / deleteCharity;
-const deleteCharity = async (req, res) => {
-  const { charityId } = req.body;
-
-  try {
-    const result = await Charity.findByIdAndDelete(charityId.trim());
-
-    res.redirect("/admin/charity");
-
-    console.log("DELETE CHARITY!");
-
-    console.log(result);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 //DELETE /admin / deleteManyCharity
 const deleteManyCharity = async (req, res) => {
   const { checkDelete } = req.body;
-
   try {
-    console.log(checkDelete);
+    // console.log(checkDelete);
+
+    if (checkDelete === undefined) {
+      getCharity(req, res, "Xóa không thành công", "fail");
+    }
 
     async function deleteOne(item) {
       const result = await Charity.deleteOne({ _id: item });
-      console.log("XÓA THÀNH CÔNG !");
-      res.redirect("/admin/charity");
     }
 
     async function deleteMany(array) {
@@ -174,21 +170,43 @@ const deleteManyCharity = async (req, res) => {
         throw new Error("XÓA KHÔNG THÀNH CÔNG !!!");
       }
       const result = await Charity.deleteMany({ _id: array });
-      console.log("XÓA THÀNH CÔNG !");
-      res.redirect("/admin/charity");
     }
 
-    async function testt(array) {
+    async function handleDelete(array) {
       if (Array.isArray(array)) {
         deleteMany(array);
       } else {
         deleteOne(array);
       }
     }
+    handleDelete(checkDelete);
 
-    testt(checkDelete);
+    getCharity(req, res, "Xóa thành công", "success");
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
+  }
+};
+
+const getDeleteManyCharity = async (req, res) => {
+  const page = +req.query.page || 1;
+  let totalItems;
+  try {
+    totalItems = await Charity.find().countDocuments();
+    const charities = await Charity.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
+
+    res.render("charityManager/charityManagerPage", {
+      charities,
+      moment,
+      message: "",
+      status: "",
+      title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP",
+      currentPage: page,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+    });
+  } catch (err) {
+    console.error(err.message);
   }
 };
 
@@ -196,8 +214,7 @@ const deleteManyCharity = async (req, res) => {
 
 const filterCharity = async (req, res) => {
   const { status, expectedMoney, resetButton } = req.body;
-  let result;
-  let charities;
+  let result = [];
 
   try {
     if (!expectedMoney) result = await Charity.find({ status: status });
@@ -250,19 +267,14 @@ const filterCharity = async (req, res) => {
       }
     }
 
-    //
-
     if (resetButton) {
       return res.redirect("/admin/charity");
     }
-
     res.render("charityManager/filterPage", {
       charities: result,
       moment,
       title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP"
     });
-
-    console.log(result);
   } catch (err) {
     console.log(err);
   }
@@ -279,7 +291,7 @@ module.exports = {
   editCharity,
   getAddCharityForm,
   getCharity,
-  deleteCharity,
   deleteManyCharity,
+  getDeleteManyCharity,
   filterCharity
 };

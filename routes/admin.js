@@ -15,9 +15,9 @@ route.post("/admin/addCharity", adminController.addCharity);
 
 route.post("/admin/editCharity", adminController.editCharity);
 
-route.post("/admin/deleteCharity", adminController.deleteCharity);
-
 route.post("/admin/deleteManyCharity", adminController.deleteManyCharity);
+
+route.get("/admin/deleteManyCharity", adminController.getDeleteManyCharity);
 
 route.post("/admin/filterCharity", adminController.filterCharity);
 

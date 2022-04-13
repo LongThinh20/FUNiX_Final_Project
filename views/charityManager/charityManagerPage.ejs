@@ -4,119 +4,120 @@
         <section class="charityManager">
 
             <div class="container-fluid">
-                <h4> QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP </h4>
-                <%- include('../includes/fillter.ejs') %>
-                    <a class="btn btn-primary mt-2" href="/admin/addCharity">TẠO MỚI CHƯƠNG TRÌNH </a>
-                    <form action="/admin/deleteManyCharity" method="post">
-                        <a class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#deleteMany">
-                            XÓA
-                        </a>
-                        <div class="modal fade" id="deleteMany" tabindex="-1" aria-labelledby="deleteManyLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteManyLabel">Bạn có muốn xóa không ?
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
+                <% if(message.length>1){ %>
+                    <div class="alert  <%= status === 'fail'  ?  'alert-danger' : 'alert-success' %>  success m-auto text-center"
+                        role="alert" id="success-alert" style="width : 200px">
+                        <%=message %>
+                    </div>
 
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-danger">Xóa</button>
+
+                    <% } %>
+                        <h4> QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP </h4>
+                        <%- include('../includes/fillter.ejs') %>
+                            <a class="btn btn-primary mt-2" href="/admin/addCharity">TẠO MỚI CHƯƠNG TRÌNH </a>
+                            <form action="/admin/deleteManyCharity" method="post">
+                                <a class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#deleteMany">
+                                    XÓA
+                                </a>
+                                <div class="modal fade" id="deleteMany" tabindex="-1" aria-labelledby="deleteManyLabel"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteManyLabel">Bạn có muốn xóa không ?
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-danger">Xóa</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-
-                        <div class="charityManagerTable">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Tiêu đề </th>
-                                        <th>Hình ảnh </th>
-                                        <th>Tóm tắt </th>
-                                        <th>Nội dung</th>
-                                        <th>Người tạo</th>
-                                        <th>Ngày tạo</th>
-                                        <th>Số tiền quyên góp dự kiến</th>
-                                        <th>Trạng thái </th>
-                                        <th>Ngày bắt đầu - kết thúc</th>
-                                        <th>Tên đơn vị/quỹ từ thiện</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    <% if(charities){ %>
-                                        <% for(let charity of charities ) { %>
+                                <div class="charityManagerTable">
+                                    <table class="table">
+                                        <thead>
                                             <tr>
-                                                <td>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            name="checkDelete" value=<%=charity._id%>
-                                                        >
-
-                                                    </div>
-                                                    <a href='/admin/addCharity/<%=charity._id%> '>Edit</a>
-                                                </td>
-                                                <td>
-                                                    <%= charity.title %>
-                                                </td>
-                                                <td>
-                                                    <img src='/<%=charity.image %>' class="img-fluid" />
-
-                                                </td>
-                                                <td>
-                                                    <%= charity.summary %>
-                                                </td>
-                                                <td>
-                                                    <%= charity.content %>
-                                                </td>
-                                                <td>
-                                                    ...
-                                                </td>
-                                                <td>
-                                                    <%= moment(charity.date).format("DD/MM/YYYY") %>
-                                                </td>
-                                                <td>
-                                                    <%= charity.expectedMoney %>
-                                                </td>
-                                                <td>
-                                                    <%= charity.status%>
-                                                </td>
-                                                <td>
-                                                    <span>
-                                                        <%= moment(charity.startDate).format("DD/MM/YYYY") %>
-                                                    </span>
-                                                    <span>
-                                                        <%= moment(charity.endDate).format("DD/MM/YYYY") %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <%= charity.organization %>
-                                                </td>
-
+                                                <th></th>
+                                                <th>Tiêu đề </th>
+                                                <th>Hình ảnh </th>
+                                                <th>Tóm tắt </th>
+                                                <th>Nội dung</th>
+                                                <th>Người tạo</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Số tiền quyên góp dự kiến</th>
+                                                <th>Trạng thái </th>
+                                                <th>Ngày bắt đầu - kết thúc</th>
+                                                <th>Tên đơn vị/quỹ từ thiện</th>
                                             </tr>
-                                            <% } %>
-                                                <% } %>
+                                        </thead>
+                                        <tbody>
 
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
+                                            <% if(charities){ %>
+                                                <% for(let charity of charities ) { %>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="checkDelete" value=<%=charity._id%>
+                                                                >
 
+                                                            </div>
+                                                            <a href='/admin/addCharity/<%=charity._id%> '>Edit</a>
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.title %>
+                                                        </td>
+                                                        <td>
+                                                            <img src='/<%=charity.image %>' class="img-fluid" />
 
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.summary %>
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.content %>
+                                                        </td>
+                                                        <td>
+                                                            ...
+                                                        </td>
+                                                        <td>
+                                                            <%= moment(charity.date).format("DD/MM/YYYY") %>
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.expectedMoney %>
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.status%>
+                                                        </td>
+                                                        <td>
+                                                            <span>
+                                                                <%= moment(charity.startDate).format("DD/MM/YYYY") %>
+                                                            </span>
+                                                            <span>
+                                                                <%= moment(charity.endDate).format("DD/MM/YYYY") %>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <%= charity.organization %>
+                                                        </td>
 
+                                                    </tr>
+                                                    <% } %>
+                                                        <% } %>
 
-                    <%- include('../includes/pagination.ejs') %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </form>
 
+                            <%- include('../includes/pagination.ejs') %>
             </div>
-
         </section>
 
         <%- include('../includes/end.ejs') %>

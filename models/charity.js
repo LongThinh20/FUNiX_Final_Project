@@ -6,11 +6,19 @@ const charitySchema = new Schema({
   title: {
     type: String,
     required: true,
-    validate: [checkLength, "tesssssssssssssss"]
+    validate: [checkLength, "Chuỗi lớn hơn 10 kí tự"]
   },
   image: { type: String, required: true },
-  summary: { type: String, required: true },
-  content: { type: String, required: true },
+  summary: {
+    type: String,
+    required: true,
+    validate: [checkLength, "Chuỗi lớn hơn 10 kí tự"]
+  },
+  content: {
+    type: String,
+    required: true,
+    validate: [checkLength, "Chuỗi lớn hơn 10 kí tự"]
+  },
   userId: [{ type: Schema.Types.ObjectId, ref: "User" }],
   date: { type: Date, default: new Date() },
   expectedMoney: { type: Number, required: true },
