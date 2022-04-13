@@ -7,11 +7,13 @@
   padding: 50px 0;
 }
 
-.charityManager .charityManagerTable {
+.charityManager .charityManagerTable,
+.filterPage .filterPageTable {
   width: 100%;
   overflow-x: scroll;
 }
-.charityManager .charityManagerTable table {
+.charityManager .charityManagerTable table,
+.filterPage .filterPageTable table {
   width: 2000px;
 }
 /* End charityManager */
@@ -24,3 +26,9 @@
 .pagination .active {
   background-color: rgba(135, 207, 235, 0.473);
 }
+/*filterPage*/
+.filterPage {
+  padding: 50px 0;
+}
+
+/*End filterPage*/

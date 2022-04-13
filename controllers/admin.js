@@ -17,7 +17,6 @@ const getCharity = async (req, res) => {
     res.render("charityManager/charityManagerPage", {
       charities,
       moment,
-      errorMess: errorMess,
       title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP",
       currentPage: page,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
@@ -196,8 +195,9 @@ const deleteManyCharity = async (req, res) => {
 //POST /admin/ filterCharity
 
 const filterCharity = async (req, res) => {
-  const { status, expectedMoney } = req.body;
+  const { status, expectedMoney, resetButton } = req.body;
   let result;
+  let charities;
 
   try {
     if (!expectedMoney) result = await Charity.find({ status: status });
@@ -224,6 +224,44 @@ const filterCharity = async (req, res) => {
           break;
       }
     }
+
+    if (status && expectedMoney) {
+      switch (expectedMoney) {
+        case "1":
+          console.log("1");
+          result = await Charity.find({
+            status: status,
+            expectedMoney: { $lte: 50000000 - 1 }
+          });
+
+          break;
+        case "2":
+          result = await Charity.find({
+            status: status,
+            expectedMoney: { $gte: 50000000, $lte: 200000000 }
+          });
+          break;
+        default:
+          result = await Charity.find({
+            status: status,
+            expectedMoney: { $gte: 200000000 + 1 }
+          });
+          break;
+      }
+    }
+
+    //
+
+    if (resetButton) {
+      return res.redirect("/admin/charity");
+    }
+
+    res.render("charityManager/filterPage", {
+      charities: result,
+      moment,
+      title: "QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP"
+    });
+
     console.log(result);
   } catch (err) {
     console.log(err);
