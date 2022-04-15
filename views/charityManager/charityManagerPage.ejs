@@ -5,8 +5,9 @@
 
             <div class="container-fluid">
                 <% if(message.length>1){ %>
-                    <div class="alert  <%= status === 'fail'  ?  'alert-danger' : 'alert-success' %>  success m-auto text-center"
-                        role="alert" id="success-alert" style="width : 200px">
+                    <div class="alert  <%= status === 'danger'  ?  'alert-danger' 
+                    : status === 'success'? 'alert-success' :'alert-warning' 
+                      %>  success m-auto text-center" role="alert" id="success-alert" style="width : 250px">
                         <%=message %>
                     </div>
 
@@ -57,7 +58,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-
                                             <% if(charities){ %>
                                                 <% for(let charity of charities ) { %>
                                                     <tr>
@@ -66,7 +66,6 @@
                                                                 <input class="form-check-input" type="checkbox"
                                                                     name="checkDelete" value=<%=charity._id%>
                                                                 >
-
                                                             </div>
                                                             <a href='/admin/addCharity/<%=charity._id%> '>Edit</a>
                                                         </td>
