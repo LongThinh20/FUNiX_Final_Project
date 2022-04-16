@@ -143,7 +143,7 @@ const addCharity = async (req, res) => {
 };
 
 //POST /admin/editCharity
-const editCharity = (req, res) => {
+const editCharity = async (req, res) => {
   const {
     id,
     title,
@@ -158,28 +158,31 @@ const editCharity = (req, res) => {
 
   let image = req.body.image;
 
-  const errors = validationResult(req);
+  let checkEditImage = false;
 
   if (req.file) {
     image = req.file.path;
+    checkEditImage = true;
   }
 
-  if (!errors.isEmpty()) {
-    return res.render("charityManager/addCharityPage", {
-      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
-      charity: {
-        title: title.trim(),
-        summary: summary.trim(),
-        content: content.trim(),
-        image: image,
-        expectedMoney: expectedMoney,
-        organization: organization.trim()
-      },
-      moment,
-      hasError: true,
-      error: errors.array()
-    });
-  }
+  // const errors = validationResult(req);
+
+  // if (!errors.isEmpty()) {
+  //   return res.render("charityManager/addCharityPage", {
+  //     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+  //     charity: {
+  //       title: title.trim(),
+  //       summary: summary.trim(),
+  //       content: content.trim(),
+  //       image: image,
+  //       expectedMoney: expectedMoney,
+  //       organization: organization.trim()
+  //     },
+  //     moment,
+  //     hasError: true,
+  //     error: errors.array()
+  //   });
+  // }
 
   const objEdit = {
     title,
@@ -193,8 +196,18 @@ const editCharity = (req, res) => {
     organization
   };
   try {
-    Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
-      res.redirect("/admin/charity");
+    const foundedCharity = await Charity.findById(id.trim());
+    if (!foundedCharity) {
+      return res.send({ message: "Charity is not found !" });
+    }
+
+    if (checkEditImage) {
+      await deleteFile(foundedCharity.image);
+    }
+
+    await Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
+      // res.redirect("/admin/charity");
+      res.send(result);
     });
   } catch (err) {
     console.error(err.message);
@@ -348,7 +361,6 @@ const filterCharity = async (req, res) => {
 
 const getImage = (req, res) => {
   const fileName = req.params.imageName;
-
   res.sendFile(path.resolve(`./images/${fileName}`));
 };
 
