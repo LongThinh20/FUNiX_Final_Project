@@ -1,9 +1,9 @@
 import * as ActionTypes from "./actionTypes";
 
-export const charity = (state = { charity: [] }, action) => {
+export const charities = (state = { charities: [] }, action) => {
   switch (action.type) {
     case ActionTypes.GET_CHARITY: {
-      return { ...state, charity: action.payload };
+      return { ...state, charities: action.payload };
     }
 
     default:

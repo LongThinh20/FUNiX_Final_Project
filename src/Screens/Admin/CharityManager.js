@@ -38,7 +38,7 @@ function CharityManager(props) {
             />
           </div>
           <div className="align-self-end">
-            <NavLink className="btn btn-primary" to="/admin/addCharity">
+            <NavLink className="btn btn-primary " to="/admin/addCharity">
               TẠO CHƯƠNG TRÌNH QUYÊN GÓP
             </NavLink>
           </div>

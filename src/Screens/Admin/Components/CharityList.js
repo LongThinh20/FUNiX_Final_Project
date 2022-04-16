@@ -28,11 +28,11 @@ function CharityList(props) {
           <tbody>
             {charities.length > 0 ? (
               charities.map((charity) => (
-                <tr key={charity.id}>
+                <tr key={charity._id}>
                   <td>{charity.title}</td>
                   <td>
                     <img
-                      src={charity.image}
+                      src={`http://localhost:3001/${charity.image}`}
                       className="img-fluid"
                       alt={charity.tile}
                     />
@@ -51,12 +51,12 @@ function CharityList(props) {
                   <td>
                     <button
                       className="btn btn-danger"
-                      onClick={() => deleteCharity(charity.id)}
+                      onClick={() => deleteCharity(charity._id)}
                     >
                       Xóa
                     </button>
                     <NavLink
-                      to={`/admin/addCharity/${charity.id}`}
+                      to={`/admin/addCharity/${charity._id}`}
                       className="btn btn-warning mt-2 "
                     >
                       Sửa

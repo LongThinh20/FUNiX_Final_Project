@@ -37,7 +37,7 @@ const schema = yup
   .required();
 
 function AddCharity(props) {
-  const { Id, charity } = props;
+  const { Id, charity, getAddCharity } = props;
 
   const defaultValues = {
     id: "",
@@ -67,7 +67,6 @@ function AddCharity(props) {
     register,
     reset,
     watch,
-
     formState: { errors }
   } = useForm({
     mode: "onTouched",
@@ -93,6 +92,9 @@ function AddCharity(props) {
       console.log("fromdata", value);
     }
     //
+    getAddCharity(formData);
+
+    window.location.replace("/admin/charity");
   };
 
   const handleReset = () => {
@@ -102,6 +104,7 @@ function AddCharity(props) {
         summary: "",
         content: "",
         image: "",
+        status: "",
         expectedMoney: null,
         startDate: "",
         endDate: "",

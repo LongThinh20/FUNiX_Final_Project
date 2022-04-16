@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 
@@ -6,20 +6,34 @@ import PageNotFound from "./Screens/PageNoteFound/index";
 import CharityManager from "./Screens/Admin/CharityManager";
 import Header from "./Screens/Admin/Components/Header";
 import AddCharityPage from "./Screens/Admin/AddCharityPage";
+import {
+  fetchCharities,
+  deleteCharity,
+  addCharity
+} from "./Redux/actionCreators";
 
 import charities from "./data/data";
+import { useDispatch, useSelector } from "react-redux";
 
 function Main() {
-  //test
+  const dispatch = useDispatch();
 
   const [resultFilter, setResultFilter] = useState();
   const [checked, setCheckedCheckBox] = useState();
   const [checkedRadio, setCheckedRadio] = useState();
-  const CHARITIES = charities;
 
-  //
+  // const CHARITIES = charities;
 
-  const handleDelete = (id) => {
+  //fetchData
+  useEffect(() => {
+    dispatch(fetchCharities());
+  }, [dispatch]);
+
+  //get data from redux
+  const CHARITIES = useSelector((state) => state.charities.charities);
+
+  //handleDeleteCharity
+  const handleDeleteCharity = (id) => {
     Swal.fire({
       title: "Bạn có chắc muốn xóa không ?",
       icon: "warning",
@@ -29,58 +43,63 @@ function Main() {
       confirmButtonText: "Xóa!"
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        console.log(id);
+        dispatch(deleteCharity(id));
+        // Swal.fire("Deleted!", "Your file has been deleted.", "success");
       }
     });
   };
 
-  const handleAdd = (charity) => {};
+  const handleAddCharity = (charity) => {
+    dispatch(addCharity(charity));
+  };
 
   const handleUpdate = (charity) => {};
+
   //handle filter
   const handeFilter = (condition) => {
-    console.log(condition);
-    function xetdk(value) {
-      if (this.expectedMoney === 1) {
-        return value.expectedMoney < 50000000 && this.status === value.status;
-      } else if (this.expectedMoney === 2) {
-        return (
-          value.expectedMoney >= 50000000 &&
-          value.expectedMoney <= 200000000 &&
-          this.status === value.status
-        );
-      } else {
-        return value.expectedMoney > 200000000 && this.status === value.status;
+    function checkAll(value) {
+      switch (this.expectedMoney) {
+        case 1:
+          return value.expectedMoney < 50000000 && this.status === value.status;
+        case 2:
+          return (
+            value.expectedMoney >= 50000000 &&
+            value.expectedMoney <= 200000000 &&
+            this.status === value.status
+          );
+        default:
+          return (
+            value.expectedMoney > 200000000 && this.status === value.status
+          );
       }
     }
-
-    function xetdk1(value) {
-      if (this.expectedMoney === 1) {
-        return value.expectedMoney < 50000000;
-      } else if (this.expectedMoney === 2) {
-        return (
-          value.expectedMoney >= 50000000 && value.expectedMoney <= 200000000
-        );
-      } else {
-        return value.expectedMoney > 200000000;
+    function checkExpectedMoney(value) {
+      switch (this.expectedMoney) {
+        case 1:
+          return value.expectedMoney < 50000000;
+        case 2:
+          return (
+            value.expectedMoney >= 50000000 && value.expectedMoney <= 200000000
+          );
+        default:
+          return value.expectedMoney > 200000000;
       }
     }
-
-    function xetdk2(value) {
+    function checkStatus(value) {
       return this.status === value.status;
     }
 
     if (condition.status === undefined) {
-      setResultFilter(CHARITIES.filter(xetdk1, condition));
+      setResultFilter(CHARITIES.filter(checkExpectedMoney, condition));
     }
     if (condition.expectedMoney === undefined) {
-      setResultFilter(CHARITIES.filter(xetdk2, condition));
+      setResultFilter(CHARITIES.filter(checkStatus, condition));
     }
     if (condition.expectedMoney && condition.status) {
-      setResultFilter(CHARITIES.filter(xetdk, condition));
+      setResultFilter(CHARITIES.filter(checkAll, condition));
     }
   };
-
   const handleResetFilter = () => {
     setResultFilter();
     setCheckedCheckBox();
@@ -111,7 +130,7 @@ function Main() {
             <CharityManager
               charities={CHARITIES}
               resultFilter={resultFilter}
-              deleteCharity={handleDelete}
+              deleteCharity={handleDeleteCharity}
               filterCharity={handeFilter}
               resetFilter={handleResetFilter}
               checked={checked}
@@ -124,7 +143,7 @@ function Main() {
         <Route
           exact
           path="/admin/addCharity"
-          render={() => <AddCharityPage getAddCharity={handleAdd} />}
+          render={() => <AddCharityPage getAddCharity={handleAddCharity} />}
         />
         <Route path="/admin/addCharity/:charityId" component={CharityWithId} />
         <Route path="" component={PageNotFound} />
