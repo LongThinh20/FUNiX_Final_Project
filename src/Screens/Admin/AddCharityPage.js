@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { NavLink } from "react-router-dom";
 import moment from "moment";
+import { isObject } from "formik";
 
 const schema = yup
   .object()
@@ -37,10 +38,10 @@ const schema = yup
   .required();
 
 function AddCharity(props) {
-  const { Id, charity, getAddCharity } = props;
+  const { Id, charity, getAddCharity, getEditCharity } = props;
 
   const defaultValues = {
-    id: "",
+    id: "" || Id,
     title: "",
     summary: "",
     content: "",
@@ -58,6 +59,7 @@ function AddCharity(props) {
     for (let key in charity[0]) {
       defaultValues[key] = charity[0][key];
     }
+
     defaultValues.startDate = moment(charity[0].startDate).format("YYYY-MM-DD");
     defaultValues.endDate = moment(charity[0].endDate).format("YYYY-MM-DD");
   }
@@ -79,11 +81,17 @@ function AddCharity(props) {
   const onSubmit = (data) => {
     const formData = new FormData();
 
-    for (let key in watchAllFields) {
-      if (key === "image") {
-        formData.append(key, watchAllFields[key][0]);
-      } else {
+    if (Id && !isObject(watchAllFields.image)) {
+      for (let key in watchAllFields) {
         formData.append(key, data[key]);
+      }
+    } else {
+      for (let key in watchAllFields) {
+        if (key === "image") {
+          formData.append(key, watchAllFields[key][0]);
+        } else {
+          formData.append(key, data[key]);
+        }
       }
     }
 
@@ -92,7 +100,12 @@ function AddCharity(props) {
       console.log("fromdata", value);
     }
     //
-    getAddCharity(formData);
+
+    if (Id) {
+      getEditCharity(formData);
+    } else {
+      getAddCharity(formData);
+    }
 
     window.location.replace("/admin/charity");
   };
@@ -152,7 +165,6 @@ function AddCharity(props) {
               className={`form-control ${errors.title ? "isValid" : ""} `}
               name="title"
               id="title"
-              defaultValue="123213"
               {...register("title")}
             />
             <div className="text-danger ">{errors.title?.message}</div>
@@ -180,7 +192,6 @@ function AddCharity(props) {
               name="summary"
               id="summary"
               rows={3}
-              defaultValue={""}
               {...register("summary")}
             />
             <div className="text-danger ">{errors.summary?.message}</div>
@@ -195,7 +206,6 @@ function AddCharity(props) {
               name="content"
               id="content"
               rows={3}
-              defaultValue={""}
               {...register("content")}
             />
             <div className="text-danger ">{errors.content?.message}</div>

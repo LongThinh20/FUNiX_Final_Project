@@ -9,10 +9,12 @@ import AddCharityPage from "./Screens/Admin/AddCharityPage";
 import {
   fetchCharities,
   deleteCharity,
-  addCharity
+  addCharity,
+  editCharity
 } from "./Redux/actionCreators";
 
-import charities from "./data/data";
+// import charities from "./data/data";
+
 import { useDispatch, useSelector } from "react-redux";
 
 function Main() {
@@ -50,11 +52,15 @@ function Main() {
     });
   };
 
+  //handleAddCharity
   const handleAddCharity = (charity) => {
     dispatch(addCharity(charity));
   };
 
-  const handleUpdate = (charity) => {};
+  //handleEditCharity
+  const handleEditCharity = (charity) => {
+    dispatch(editCharity(charity));
+  };
 
   //handle filter
   const handeFilter = (condition) => {
@@ -110,10 +116,10 @@ function Main() {
   const CharityWithId = ({ match }) => {
     return (
       <AddCharityPage
-        getCharityUpdate={handleUpdate}
+        getEditCharity={handleEditCharity}
         Id={match.params.charityId}
-        charity={charities.filter(
-          (charity) => charity.id === parseInt(match.params.charityId, 10)
+        charity={CHARITIES.filter(
+          (charity) => charity._id === match.params.charityId.toString()
         )}
       />
     );
