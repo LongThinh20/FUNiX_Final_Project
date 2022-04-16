@@ -6,6 +6,8 @@ const route = express.Router();
 const adminController = require("../controllers/admin");
 
 //get charity List
+route.get("/admin/allCharity", adminController.getAllCharity);
+
 route.get("/admin/charity", adminController.getCharity);
 
 route.get("/admin/addCharity", adminController.getAddCharityForm);
@@ -34,7 +36,9 @@ route.post(
     .isString()
     .isLength({ min: 3 })
     .withMessage("Nhân tên tổ chức / quỹ từ thiện từ 3 ký tự trở lên !"),
-  body("startDate").isDate().withMessage("Ngày bắt đầu chưa hợp lệ !"),
+  body("startDate").isDate(),
+  body("endDate").isDate(),
+
   check("expectedMoney")
     .notEmpty()
     .isNumeric()
@@ -69,6 +73,8 @@ route.post(
     .isString()
     .isLength({ min: 3 })
     .withMessage("Nhân tên tổ chức / quỹ từ thiện từ 3 ký tự trở lên !"),
+  body("startDate").isDate(),
+  body("endDate").isDate(),
   body("startDate").isDate().withMessage("Ngày bắt đầu chưa hợp lệ !"),
   check("expectedMoney")
     .notEmpty()
@@ -84,11 +90,16 @@ route.post(
 
 route.post("/admin/deleteManyCharity", adminController.deleteManyCharity);
 
+route.delete(
+  "/admin/deleteOneCharity/:charityId",
+  adminController.deleteOneCharity
+);
+
 route.get("/admin/deleteManyCharity", adminController.getDeleteManyCharity);
 
 route.post("/admin/filterCharity", adminController.filterCharity);
 
-// route.get("/:imageName", adminController.getImage);
+route.get("/:imageName", adminController.getImage);
 
 // route.post("/admin/123", adminController.postCharity);
 

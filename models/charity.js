@@ -32,7 +32,7 @@ const charitySchema = new Schema({
   status: { type: String, default: "notStart", required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
-  organization: { type: String, validate: [checkLength] }
+  organization: { type: String, required: true, validate: [checkLength] }
 });
 
 module.exports = mongoose.model("Charity", charitySchema);
