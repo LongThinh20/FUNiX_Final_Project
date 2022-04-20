@@ -21,7 +21,7 @@
                                 <li class="breadcrumb-item"><a href="/admin/charity">Danh sách chương trình</a>
                                 </li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    <%= charity ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
+                                    <%= isEdit ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
                                 </li>
                             </ol>
                         </nav>
@@ -29,7 +29,7 @@
                             <%= charity ? 'CẬP NHẬT CHƯƠNG TRÌNH TỪ THIỆN ' :'THÊM CHƯƠNG TRÌNH TỪ THIỆN'%>
                         </h4>
                         <div class="addCharityForm">
-                            <form enctype="multipart/form-data" method="post" action=<%=charity ? '/admin/editCharity'
+                            <form enctype="multipart/form-data" method="post" action=<%=isEdit ? '/admin/editCharity'
                                 :'/admin/addCharity' %> >
                                 <div class="form-group">
                                     <label for="title" class="form-label">Tiêu đề : </label>
@@ -112,7 +112,7 @@
                                     <input type="hidden" value=<%=charity._id %> name="id" />
                                     <% } %>
                                         <button type="submit" class="btn btn-primary ">
-                                            <%= charity ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
+                                            <%= isEdit ? 'Cập nhật chương trình ' :'Thêm chương trình' %>
                                         </button>
                                         <a class="btn btn-secondary" href="/admin/charity">Hủy</a>
                             </form>

@@ -5,6 +5,8 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 
+const router = require("./routes/index");
+
 const app = express();
 const MONGODB_URI =
   "mongodb+srv://finalproject:123@cluster0.0kvgp.mongodb.net/FinalProject";
@@ -35,9 +37,6 @@ const fileFilter = (req, file, cb) => {
 
 const imagesFolderPath = path.join(__dirname, "images");
 
-const authRoute = require("./routes/auth");
-const adminRoute = require("./routes/admin");
-
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -50,8 +49,8 @@ app.use("/images", express.static(imagesFolderPath));
 app.use(
   multer({ storage: storegeFile, fileFilter: fileFilter }).single("image")
 );
-app.use(authRoute);
-app.use(adminRoute);
+
+router(app);
 
 mongoose
   .connect(MONGODB_URI)

@@ -1,21 +1,20 @@
 const express = require("express");
-const { body, check } = require("express-validator");
+const { body } = require("express-validator");
 
 const route = express.Router();
 
-const adminController = require("../controllers/admin");
+const charityController = require("../controllers/charity");
 
-//get charity List
-route.get("/admin/allCharity", adminController.getAllCharity);
+route.get("/allCharity", charityController.getAllCharity);
 
-route.get("/admin/charity", adminController.getCharity);
+route.get("/charity", charityController.getCharity);
 
-route.get("/admin/addCharity", adminController.getAddCharityForm);
+route.get("/addCharity", charityController.getAddCharityForm);
 
-route.get("/admin/addCharity/:charityId", adminController.getAddCharityForm);
+route.get("/addCharity/:charityId", charityController.getAddCharityForm);
 
 route.post(
-  "/admin/addCharity",
+  "/addCharity",
   body("title")
     .trim()
     .isString()
@@ -29,17 +28,20 @@ route.post(
   body("content")
     .trim()
     .isString()
-    .isLength({ min: 3, max: 10 })
+    .isLength({ min: 3, max: 400 })
     .withMessage("Nhập nội dung từ 3 - 400 ký tự !"),
   body("organization")
     .trim()
     .isString()
     .isLength({ min: 3 })
     .withMessage("Nhân tên tổ chức / quỹ từ thiện từ 3 ký tự trở lên !"),
-  body("startDate").isDate(),
-  body("endDate").isDate(),
-
-  check("expectedMoney")
+  body("endDate").custom((value, { req }) => {
+    if (req.body.startDate >= value) {
+      throw new Error("Ngày kết thúc phải lớn hơn ngày bắt đầu !");
+    }
+    return true;
+  }),
+  body("expectedMoney")
     .notEmpty()
     .isNumeric()
     .custom((value, { req }) => {
@@ -48,11 +50,11 @@ route.post(
       }
       return true;
     }),
-  adminController.addCharity
+  charityController.addCharity
 );
 
 route.post(
-  "/admin/editCharity",
+  "/editCharity",
   body("title")
     .trim()
     .isString()
@@ -66,17 +68,20 @@ route.post(
   body("content")
     .trim()
     .isString()
-    .isLength({ min: 3, max: 10 })
+    .isLength({ min: 3 })
     .withMessage("Nhập nội dung từ 3 - 400 ký tự !"),
+  body("endDate").custom((value, { req }) => {
+    if (req.body.startDate >= value) {
+      throw new Error("Ngày kết thúc phải lớn hơn ngày bắt đầu !");
+    }
+    return true;
+  }),
   body("organization")
     .trim()
     .isString()
     .isLength({ min: 3 })
     .withMessage("Nhân tên tổ chức / quỹ từ thiện từ 3 ký tự trở lên !"),
-  body("startDate").isDate(),
-  body("endDate").isDate(),
-  body("startDate").isDate().withMessage("Ngày bắt đầu chưa hợp lệ !"),
-  check("expectedMoney")
+  body("expectedMoney")
     .notEmpty()
     .isNumeric()
     .custom((value, { req }) => {
@@ -85,24 +90,18 @@ route.post(
       }
       return true;
     }),
-  adminController.editCharity
+  charityController.editCharity
 );
 
-route.post("/admin/deleteManyCharity", adminController.deleteManyCharity);
+route.post("/deleteManyCharity", charityController.deleteManyCharity);
 
 route.delete(
-  "/admin/deleteOneCharity/:charityId",
-  adminController.deleteOneCharity
+  "/deleteOneCharity/:charityId",
+  charityController.deleteOneCharity
 );
 
-route.get("/admin/deleteManyCharity", adminController.getDeleteManyCharity);
+route.get("/deleteManyCharity", charityController.getDeleteManyCharity);
 
-route.post("/admin/filterCharity", adminController.filterCharity);
-
-route.get("/:imageName", adminController.getImage);
-
-// route.post("/admin/123", adminController.postCharity);
-
-// route.post("/admin/editCharity", adminController.editCharity);
+route.post("/filterCharity", charityController.filterCharity);
 
 module.exports = route;

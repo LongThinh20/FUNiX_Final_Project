@@ -46,17 +46,20 @@ const getAddCharityForm = async (req, res) => {
   const { charityId } = req.params;
   let charity;
 
+  let isEdit = false;
+
   if (charityId) {
     charity = await Charity.findById(charityId.trim());
+    isEdit = true;
     if (!charity) {
       return getCharity(req, res, "Không tìm thấy chương trình !", "warning");
     }
   }
-
   res.render("charityManager/addCharityPage", {
     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
     charity: charity,
     moment,
+    isEdit: isEdit,
     hasError: false,
     error: ""
   });
@@ -77,44 +80,48 @@ const addCharity = async (req, res) => {
 
   const imageFile = req.file;
 
-  // const errors = validationResult(req);
+  const errors = validationResult(req);
 
-  // if (!imageFile) {
-  //   return res.render("charityManager/addCharityPage", {
-  //     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
-  //     charity: {
-  //       title: title.trim(),
-  //       summary: summary.trim(),
-  //       content: content.trim(),
-  //       expectedMoney: expectedMoney,
-  //       organization: organization.trim()
-  //     },
-  //     moment,
-  //     isEdit: false,
-  //     hasError: true,
-  //     error: "Hình ảnh không hợp lệ "
-  //   });
-  // }
+  if (!imageFile) {
+    return res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: {
+        title: title.trim(),
+        summary: summary.trim(),
+        content: content.trim(),
+        expectedMoney: expectedMoney,
+        organization: organization.trim(),
+        startDate: startDate,
+        endDate: endDate
+      },
+      moment,
+      isEdit: false,
+      hasError: true,
+      error: "Hình ảnh không hợp lệ "
+    });
+  }
 
   const image = imageFile.path;
 
-  // if (!errors.isEmpty()) {
-  //   return res.render("charityManager/addCharityPage", {
-  //     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
-  //     charity: {
-  //       title: title.trim(),
-  //       summary: summary.trim(),
-  //       content: content.trim(),
-  //       image: image,
-  //       expectedMoney: expectedMoney,
-  //       organization: organization.trim()
-  //     },
-  //     moment,
-  //     isEdit: false,
-  //     hasError: true,
-  //     error: errors.array()
-  //   });
-  // }
+  if (!errors.isEmpty()) {
+    return res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: {
+        title: title.trim(),
+        summary: summary.trim(),
+        content: content.trim(),
+        image: image,
+        expectedMoney: expectedMoney,
+        organization: organization.trim(),
+        startDate: startDate,
+        endDate: endDate
+      },
+      moment,
+      isEdit: false,
+      hasError: true,
+      error: errors.array()
+    });
+  }
 
   try {
     const newCharity = new Charity({
@@ -132,13 +139,14 @@ const addCharity = async (req, res) => {
     });
     const result = await newCharity.save();
 
-    res.send(result);
+    // res.send(result);
 
     console.log("POST CHARITY!");
 
-    // res.redirect("/admin/charity");
+    res.redirect("/admin/charity");
   } catch (err) {
     console.error(err.message);
+    // res.status(500).send({ err: err.message });
   }
 };
 
@@ -160,29 +168,35 @@ const editCharity = async (req, res) => {
 
   let checkEditImage = false;
 
+  const foundedCharity = await Charity.findById(id.trim());
+  if (!foundedCharity) {
+    return res.send({ message: "Charity is not found !" });
+  }
+
   if (req.file) {
     image = req.file.path;
     checkEditImage = true;
   }
 
-  // const errors = validationResult(req);
+  const errors = validationResult(req);
 
-  // if (!errors.isEmpty()) {
-  //   return res.render("charityManager/addCharityPage", {
-  //     title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
-  //     charity: {
-  //       title: title.trim(),
-  //       summary: summary.trim(),
-  //       content: content.trim(),
-  //       image: image,
-  //       expectedMoney: expectedMoney,
-  //       organization: organization.trim()
-  //     },
-  //     moment,
-  //     hasError: true,
-  //     error: errors.array()
-  //   });
-  // }
+  if (!errors.isEmpty()) {
+    return res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: {
+        title: title.trim(),
+        summary: summary.trim(),
+        content: content.trim(),
+        image: image,
+        expectedMoney: expectedMoney,
+        organization: organization.trim()
+      },
+      moment,
+      isEdit: true,
+      hasError: true,
+      error: errors.array()
+    });
+  }
 
   const objEdit = {
     title,
@@ -195,20 +209,20 @@ const editCharity = async (req, res) => {
     endDate,
     organization
   };
+
   try {
-    const foundedCharity = await Charity.findById(id.trim());
-    if (!foundedCharity) {
-      return res.send({ message: "Charity is not found !" });
-    }
+    const filter = { _id: id };
+
+    let result = await User.findOneAndUpdate(filter, objEdit);
+
+    await Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
+      res.redirect("/admin/charity");
+      // res.send(result);
+    });
 
     if (checkEditImage) {
       await deleteFile(foundedCharity.image);
     }
-
-    await Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
-      // res.redirect("/admin/charity");
-      res.send(result);
-    });
   } catch (err) {
     console.error(err.message);
   }
@@ -224,7 +238,7 @@ const deleteManyCharity = async (req, res) => {
 
     async function deleteOne(item) {
       const charity = await Charity.find({ _id: item });
-      deleteFile(charity[0].image);
+      await deleteFile(charity[0].image);
       const result = await Charity.deleteOne({ _id: item });
     }
 
@@ -254,6 +268,7 @@ const deleteManyCharity = async (req, res) => {
       }
     }
     handleDelete(checkDelete);
+
     getCharity(req, res, "Xóa thành công", "success");
   } catch (err) {
     console.error(err.message);
@@ -359,11 +374,6 @@ const filterCharity = async (req, res) => {
   }
 };
 
-const getImage = (req, res) => {
-  const fileName = req.params.imageName;
-  res.sendFile(path.resolve(`./images/${fileName}`));
-};
-
 module.exports = {
   addCharity,
   editCharity,
@@ -373,6 +383,5 @@ module.exports = {
   deleteOneCharity,
   getDeleteManyCharity,
   filterCharity,
-  getAllCharity,
-  getImage
+  getAllCharity
 };

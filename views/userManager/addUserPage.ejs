@@ -1,0 +1,81 @@
+<%- include('../includes/head.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
+
+        <section class="addUserPage">
+            <div class="container">
+                <h4>
+                    <%= user? 'CẬP NHẬT NGƯỜI DÙNG' : 'THÊM NGƯỜI DÙNG' %>
+
+                </h4>
+                <% if(error){ %>
+                    <div class="alert alert-danger text-center m-auto pb-2" style="width :50%" role="alert">
+                        <% if(Array.isArray(error)){ %>
+                            <% for(let item of error) {%>
+                                <p>
+                                    <%= item.msg %>
+                                </p>
+                                <% } %>
+                                    <% }else{%>
+                                        <%= error %>
+                                            <% } %>
+                    </div>
+
+                    <% } %>
+                        <form action=<%=isEdit?'/admin/editUser':'/admin/addUser'%> method="post">
+                            <% if(!isEdit) {%>
+                                <div class="form-group">
+                                    <label for="userName">Tên người dùng :</label>
+                                    <input type="text" id="userName" name="userName" class="form-control"
+                                        value="<%= hasError  ?  user.userName:'' %>" />
+                                </div>
+                                <% } %>
+                                    <div class="form-group">
+                                        <label for="name">Họ và tên</label>
+                                        <input type="text" id="name" name="name" class="form-control"
+                                            value="<%= hasError || user ?  user.name:'' %>" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" name="email" class="form-control"
+                                            value="<%= hasError||user ?  user.email:'' %>" />
+                                    </div>
+                                    <% if(!isEdit){ %>
+                                        <div class="form-group">
+                                            <label for="password">Mật khẩu ;</label>
+                                            <input type="password" id="password" name="password" class="form-control"
+                                                value="<%= hasError ?  user.password : '' %>" />
+                                        </div>
+                                        <% } %>
+
+                                            <div class="form-group">
+                                                <label for="phone">Số điện thoại :</label>
+                                                <input type="tel" id="phone" name="phone" class="form-control"
+                                                    value="<%= hasError || user?  user.phone:'' %>" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="role">Loại người dùng :</label>
+                                                <select class="form-select" name="role" id="role">
+                                                    <% if(user){ %>
+                                                        <option value="user" <%=user.role==='user' ? 'selected' :'' %>
+                                                            >User
+                                                        </option>
+                                                        <option value="admin" <%=user.role==='admin' ? 'selected' :'' %>
+                                                            >Admin</option>
+                                                        <% } else {%>
+                                                            <option value="user">User
+                                                            </option>
+                                                            <option value="admin">Admin</option>
+                                                            <% } %>
+                                                </select>
+                                            </div>
+                                            <% if(user) {%>
+                                                <input type="hidden" name="id" value="<%= user._id %>">
+                                                <% } %>
+                                                    <button type=" submit" class="btn btn-primary mt-4">Thêm người
+                                                        dùng</button>
+                                                    <a href="/admin/user" class="btn btn-secondary mt-4 ms-4">Hủy</a>
+                        </form>
+            </div>
+        </section>
+
+        <%- include('../includes/end.ejs') %>

@@ -1,0 +1,122 @@
+<%- include('../includes/head.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
+
+        <section class="filterUserPage">
+            <div class="container-fluid">
+                <div class="container-fluid">
+                    <% if(message.length>1){ %>
+                        <div class="alert  <%= status === 'danger'  ?  'alert-danger' 
+                        : status === 'success'? 'alert-success' :'alert-warning' 
+                          %>  success m-auto text-center" role="alert" id="success-alert" style="width : 250px">
+                            <%=message %>
+                        </div>
+                        <% } %>
+
+
+
+                            <div>
+                                <form>
+
+
+
+                                </form>
+
+
+
+
+
+
+
+
+                            </div>
+                            <h4>DANH SÁCH NGƯỜI DÙNG</h4>
+
+                            <a href="/admin/addUser" class="btn btn-primary">THÊM NGƯỜI DÙNG</a>
+
+                            <div class="userManagerTable">
+                                <table class="table ">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th> Tên người dùng</th>
+                                            <th>Email </th>
+                                            <th>Họ và tên</th>
+                                            <th> Số điện thoại</th>
+                                            <th>Loại người dùng</th>
+                                            <th> Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% if(users){ %>
+                                            <% for(let user of users) {%>
+                                                <tr>
+                                                    <td>
+                                                        <form action="/admin/deleteUser/<%= user._id %>" method="post">
+                                                            <a class="btn btn-danger mt-2" data-bs-toggle="modal"
+                                                                data-bs-target="#deleteMany">
+                                                                XÓA
+                                                            </a>
+                                                            <div class="modal fade" id="deleteMany" tabindex="-1"
+                                                                aria-labelledby="deleteManyLabel" aria-hidden="true">
+                                                                <div class="modal-dialog">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteManyLabel">Bạn có muốn
+                                                                                xóa không ?
+                                                                            </h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-bs-dismiss="modal">Close</button>
+                                                                            <button type="submit"
+                                                                                class="btn btn-danger">Xóa</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+
+                                                        <a href="/admin/addUser/<%= user._id %>"
+                                                            class="btn btn-warning mt-2"> SỬA</a>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.name%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.email%>
+                                                    </td>
+                                                    <td>
+                                                        <%= user.userName %>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.phone%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.role%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.status%>
+                                                    </td>
+                                                </tr>
+
+                                                <% } %>
+                                                    <%} %>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                </div>
+        </section>
+
+        <%- include('../includes/end.ejs') %>
