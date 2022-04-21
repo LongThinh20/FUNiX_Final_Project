@@ -6,9 +6,9 @@ const multer = require("multer");
 const path = require("path");
 const config = require("config");
 
-const router = require("./routes/index");
-
 const app = express();
+
+const router = require("./routes/index");
 
 const MONGODB_URI = config.get("dbUrl");
 const PORT = config.get("port");

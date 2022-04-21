@@ -57,4 +57,6 @@ route.post("/deleteUser/:userId", userController.deleteUser);
 
 route.get("/filterUser", userController.filterUser);
 
+route.get("/resetPassword/:userId", userController.resetPassword);
+
 module.exports = route;

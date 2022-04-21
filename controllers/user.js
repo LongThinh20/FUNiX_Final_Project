@@ -11,7 +11,7 @@ const User = require("../models/user");
 
 const ITEMS_PER_PAGE = 3;
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, mess = "", status = "") => {
   try {
     const users = await User.find().select("-password");
 
@@ -173,41 +173,69 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const filterUser = (req, res) => {
+const filterUser = async (req, res) => {
   const { userName, phone } = req.query;
+  try {
+    const resutl = await User.find({
+      $or: [
+        { userName: { $regex: `^${userName}` }, phone: { $regex: `^${phone}` } }
+      ]
+    }).select("-_id");
 
-  const test = md5("123");
+    res.render("userManager/userManagerPage", {
+      title: "DANH SÁCH NGƯỜI DÙNG",
+      users: resutl
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  const test1 = md5(userName);
+const resetPassword = async (req, res) => {
+  const { userId } = req.params;
 
-  console.log(test);
+  let newPassword = "";
 
-  if (test === test1) {
-    console.log("true");
+  let checkPassword;
+
+  function ramdomTest() {
+    return Math.floor(Math.random() * 1001);
   }
 
-  // sgmail
-  //   .send({
-  //     from: "toihoclaptrinh20@outlook.com",
-  //     to: "thinhdao202@gmail.com",
-  //     subject: "welcom!",
-  //     html: "<h1>Hello</h1>"
-  //   })
-  //   .then((res) => console.log("success!"))
-  //   .catch((err) => console.log(err));
+  try {
+    const fundedUser = await User.findById(userId.trim());
 
-  // console.log(userName);
+    if (!fundedUser) {
+      throw new Error("User is not exist!");
+    }
 
-  // const resutl = await User.find({
-  //   $or: [
-  //     { userName: { $regex: `^${userName}` }, phone: { $regex: `^${phone}` } }
-  //   ]
-  // }).select("-_id");
+    do {
+      newPassword = ramdomTest();
+      checkPassword = await User.findOne({ password: md5(newPassword) });
+    } while (checkPassword);
 
-  // res.render("userManager/userManagerPage", {
-  //   title: "DANH SÁCH NGƯỜI DÙNG",
-  //   users: resutl
-  // });
+    const objEdit = {
+      password: md5(newPassword)
+    };
+
+    const filter = { _id: userId.trim() };
+
+    let result = await User.findOneAndUpdate(filter, objEdit);
+
+    sgmail
+      .send({
+        from: "toihoclaptrinh20@outlook.com",
+        to: "longthinhtx@gmail.com",
+        subject: "welcom!",
+        html: `<h1>Mật khẩu mới:${md5(newPassword)}</h1>`
+      })
+      .then((res) => console.log("success!"))
+      .catch((err) => console.log(err));
+
+    res.redirect("/admin/user");
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 module.exports = {
@@ -216,5 +244,6 @@ module.exports = {
   addUser,
   editUser,
   deleteUser,
-  filterUser
+  filterUser,
+  resetPassword
 };
