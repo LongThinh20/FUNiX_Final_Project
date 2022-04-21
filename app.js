@@ -4,13 +4,15 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+const config = require("config");
 
 const router = require("./routes/index");
 
 const app = express();
-const MONGODB_URI =
-  "mongodb+srv://finalproject:123@cluster0.0kvgp.mongodb.net/FinalProject";
-const PORT = 3001;
+
+const MONGODB_URI = config.get("dbUrl");
+const PORT = config.get("port");
+
 const storegeFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");

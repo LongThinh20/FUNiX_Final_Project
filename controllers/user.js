@@ -1,5 +1,11 @@
 const md5 = require("md5");
 const { validationResult } = require("express-validator");
+const sgmail = require("@sendgrid/mail");
+const config = require("config");
+
+const sgAPIKey = config.get("sgAPIKey");
+
+sgmail.setApiKey(sgAPIKey);
 
 const User = require("../models/user");
 
@@ -167,21 +173,41 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const filterUser = async (req, res) => {
+const filterUser = (req, res) => {
   const { userName, phone } = req.query;
+
+  const test = md5("123");
+
+  const test1 = md5(userName);
+
+  console.log(test);
+
+  if (test === test1) {
+    console.log("true");
+  }
+
+  // sgmail
+  //   .send({
+  //     from: "toihoclaptrinh20@outlook.com",
+  //     to: "thinhdao202@gmail.com",
+  //     subject: "welcom!",
+  //     html: "<h1>Hello</h1>"
+  //   })
+  //   .then((res) => console.log("success!"))
+  //   .catch((err) => console.log(err));
 
   // console.log(userName);
 
-  const resutl = await User.find({
-    $or: [
-      { userName: { $regex: `^${userName}` }, phone: { $regex: `^${phone}` } }
-    ]
-  }).select("-_id");
+  // const resutl = await User.find({
+  //   $or: [
+  //     { userName: { $regex: `^${userName}` }, phone: { $regex: `^${phone}` } }
+  //   ]
+  // }).select("-_id");
 
-  res.render("userManager/userManagerPage", {
-    title: "DANH SÁCH NGƯỜI DÙNG",
-    users: resutl
-  });
+  // res.render("userManager/userManagerPage", {
+  //   title: "DANH SÁCH NGƯỜI DÙNG",
+  //   users: resutl
+  // });
 };
 
 module.exports = {
