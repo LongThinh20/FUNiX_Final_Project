@@ -33,4 +33,6 @@ const postSigup = (req, res, next) => {
     });
 };
 
-module.exports = { postSigup };
+const postLogin = (req, res) => {};
+
+module.exports = { postSigup, postLogin };

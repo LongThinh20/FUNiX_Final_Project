@@ -4,8 +4,11 @@ const { validationResult } = require("express-validator");
 
 const deleteFile = require("../utils/deleteFile");
 
+const Methods = require("../utils/method");
+
 const ITEMS_PER_PAGE = 3;
 
+//get all
 const getAllCharity = async (req, res) => {
   try {
     const charity = await Charity.find();
@@ -82,6 +85,25 @@ const addCharity = async (req, res) => {
 
   const errors = validationResult(req);
 
+  if (!errors.isEmpty()) {
+    return res.render("charityManager/addCharityPage", {
+      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
+      charity: {
+        title: title.trim(),
+        summary: summary.trim(),
+        content: content.trim(),
+        expectedMoney: expectedMoney,
+        organization: organization.trim(),
+        startDate: startDate,
+        endDate: endDate
+      },
+      moment,
+      isEdit: false,
+      hasError: true,
+      error: errors.array()
+    });
+  }
+
   if (!imageFile) {
     return res.render("charityManager/addCharityPage", {
       title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
@@ -103,26 +125,6 @@ const addCharity = async (req, res) => {
 
   const image = imageFile.path;
 
-  if (!errors.isEmpty()) {
-    return res.render("charityManager/addCharityPage", {
-      title: " THÊM CHƯƠNG TRÌNH TỪ THIỆN",
-      charity: {
-        title: title.trim(),
-        summary: summary.trim(),
-        content: content.trim(),
-        image: image,
-        expectedMoney: expectedMoney,
-        organization: organization.trim(),
-        startDate: startDate,
-        endDate: endDate
-      },
-      moment,
-      isEdit: false,
-      hasError: true,
-      error: errors.array()
-    });
-  }
-
   try {
     const newCharity = new Charity({
       title: title.trim(),
@@ -139,9 +141,9 @@ const addCharity = async (req, res) => {
     });
     const result = await newCharity.save();
 
-    // res.send(result);
-
     console.log("POST CHARITY!");
+
+    res.send(result);
 
     res.redirect("/admin/charity");
   } catch (err) {
@@ -213,16 +215,14 @@ const editCharity = async (req, res) => {
   try {
     const filter = { _id: id };
 
-    let result = await User.findOneAndUpdate(filter, objEdit);
-
-    await Charity.findByIdAndUpdate({ _id: id }, objEdit, (result) => {
-      res.redirect("/admin/charity");
-      // res.send(result);
-    });
+    let result = await Charity.findOneAndUpdate(filter, objEdit);
 
     if (checkEditImage) {
       await deleteFile(foundedCharity.image);
     }
+
+    res.redirect("/admin/charity");
+    res.send(result);
   } catch (err) {
     console.error(err.message);
   }
@@ -236,38 +236,11 @@ const deleteManyCharity = async (req, res) => {
       return getCharity(req, res, "Chưa chọn đối tượng để xóa !", "warning");
     }
 
-    async function deleteOne(item) {
-      const charity = await Charity.find({ _id: item });
-      await deleteFile(charity[0].image);
-      const result = await Charity.deleteOne({ _id: item });
+    if (Array.isArray(checkDelete)) {
+      await Methods.deleteMany(checkDelete);
+    } else {
+      await Methods.deleteOne(checkDelete);
     }
-
-    async function deleteMany(array) {
-      let isCheck = true;
-      for (let i of array) {
-        const foundedCharity = await Charity.findById(i.trim());
-        if (!foundedCharity) isCheck = false;
-      }
-
-      if (!isCheck) {
-        return getCharity(req, res, "Xóa không thành công!", "danger");
-      }
-
-      const charity = await Charity.find({ _id: array });
-      for (let i of charity) {
-        await deleteFile(i.image);
-      }
-      const result = await Charity.deleteMany({ _id: array });
-    }
-
-    function handleDelete(array) {
-      if (Array.isArray(array)) {
-        deleteMany(array);
-      } else {
-        deleteOne(array);
-      }
-    }
-    handleDelete(checkDelete);
 
     getCharity(req, res, "Xóa thành công", "success");
   } catch (err) {
@@ -304,7 +277,7 @@ const deleteOneCharity = async (req, res) => {
   const founderCharity = await Charity.findById(charityId.trim());
 
   if (!founderCharity) {
-    return res.status(400).send({ message: "Khong ton tai" });
+    return res.status(400).send({ message: "Charity is not exist!" });
   }
 
   const result = await Charity.deleteOne({ _id: charityId.trim() });
@@ -324,45 +297,10 @@ const filterCharity = async (req, res) => {
     }
     if (!expectedMoney) result = await Charity.find({ status: status });
     if (!status) {
-      switch (expectedMoney) {
-        case "1":
-          result = await Charity.find({
-            expectedMoney: { $lte: 50000000 - 1 }
-          });
-          break;
-        case "2":
-          result = await Charity.find({
-            expectedMoney: { $gte: 50000000, $lte: 200000000 }
-          });
-          break;
-        default:
-          result = await Charity.find({
-            expectedMoney: { $gte: 200000000 + 1 }
-          });
-          break;
-      }
+      result = await Methods.handleFilterWithMoney(expectedMoney);
     }
     if (status && expectedMoney) {
-      switch (expectedMoney) {
-        case "1":
-          result = await Charity.find({
-            status: status,
-            expectedMoney: { $lte: 50000000 - 1 }
-          });
-          break;
-        case "2":
-          result = await Charity.find({
-            status: status,
-            expectedMoney: { $gte: 50000000, $lte: 200000000 }
-          });
-          break;
-        default:
-          result = await Charity.find({
-            status: status,
-            expectedMoney: { $gte: 200000000 + 1 }
-          });
-          break;
-      }
+      result = await Methods.handleFilterAll(expectedMoney, status);
     }
     res.render("charityManager/filterPage", {
       charities: result,

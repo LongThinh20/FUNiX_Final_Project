@@ -65,12 +65,13 @@
                                                 <tr>
                                                     <td>
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox"
+                                                            <input class="form-check-input m-auto" type="checkbox"
                                                                 name="checkDelete" value=<%=charity._id%>
                                                             >
 
                                                         </div>
-                                                        <a href='/admin/addCharity/<%=charity._id%> '>Edit</a>
+                                                        <a class="btn btn-warning"
+                                                            href='/admin/addCharity/<%=charity._id%> '>SỬA</a>
                                                     </td>
                                                     <td>
                                                         <%= charity.title %>

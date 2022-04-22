@@ -203,9 +203,9 @@ const resetPassword = async (req, res) => {
   }
 
   try {
-    const fundedUser = await User.findById(userId.trim());
+    const foundedUser = await User.findById(userId.trim());
 
-    if (!fundedUser) {
+    if (!foundedUser) {
       throw new Error("User is not exist!");
     }
 
@@ -225,7 +225,7 @@ const resetPassword = async (req, res) => {
     sgmail
       .send({
         from: "toihoclaptrinh20@outlook.com",
-        to: "longthinhtx@gmail.com",
+        to: foundedUser.email,
         subject: "welcom!",
         html: `<h1>Mật khẩu mới:${md5(newPassword)}</h1>`
       })
