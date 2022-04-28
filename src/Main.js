@@ -2,20 +2,35 @@ import React, { useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 
+import jwt_decode from "jwt-decode";
+
 import PageNotFound from "./Screens/PageNoteFound/index";
+
 import CharityManager from "./Screens/Admin/CharityManager";
-import Header from "./Screens/Admin/Components/Header";
+import UserManager from "./Screens/Admin/UserManager";
+import Header from "./Components/Header";
 import AddCharityPage from "./Screens/Admin/AddCharityPage";
+
+import Home from "./Screens/User/Home";
+import LoginPage from "./Screens/User/LoginPage";
+import SigupPage from "./Screens/User/SigupPage";
+
+import { domain, token } from "./Config/config";
+
 import {
   fetchCharities,
   deleteCharity,
   addCharity,
-  editCharity
+  editCharity,
+  fetchUsers,
+  postLogin,
+  postLogout,
+  fetchUser
 } from "./Redux/actionCreators";
 
-// import charities from "./data/data";
-
 import { useDispatch, useSelector } from "react-redux";
+import AddUserPage from "./Screens/Admin/AddUserPage";
+import Axios from "axios";
 
 function Main() {
   const dispatch = useDispatch();
@@ -24,15 +39,26 @@ function Main() {
   const [checked, setCheckedCheckBox] = useState();
   const [checkedRadio, setCheckedRadio] = useState();
 
-  // const CHARITIES = charities;
-
-  //fetchData
-  useEffect(() => {
-    dispatch(fetchCharities());
-  }, [dispatch]);
-
   //get data from redux
   const CHARITIES = useSelector((state) => state.charities.charities);
+  const USERS = useSelector((state) => state.users.users);
+  const CURRENT_USER = useSelector((state) => state.users.currentUser);
+
+  useEffect(() => {
+    dispatch(fetchUser());
+    dispatch(fetchCharities());
+    dispatch(fetchUsers());
+  }, [dispatch]);
+  //
+
+  //handle Login
+  const handleLogin = (user) => {
+    dispatch(postLogin(user));
+  };
+
+  const handleLogout = () => {
+    dispatch(postLogout(JSON.parse(token)));
+  };
 
   //handleDeleteCharity
   const handleDeleteCharity = (id) => {
@@ -112,6 +138,9 @@ function Main() {
     setCheckedRadio();
   };
 
+  //handle add user
+
+  const handleAddUser = (user) => {};
   //get charity for EditCharity Page
   const CharityWithId = ({ match }) => {
     return (
@@ -125,15 +154,24 @@ function Main() {
     );
   };
 
+  //fetchData
+
   return (
     <div>
-      <Header />
+      <Header user={CURRENT_USER} handleLogout={handleLogout} />
       <Switch>
+        <Route
+          path="/login"
+          exact
+          render={() => <LoginPage handleLogin={handleLogin} />}
+        />
+        <Route path="/" exact render={() => <Home charities={CHARITIES} />} />
         <Route
           exact
           path="/admin/charity"
           render={() => (
             <CharityManager
+              user={CURRENT_USER}
               charities={CHARITIES}
               resultFilter={resultFilter}
               deleteCharity={handleDeleteCharity}
@@ -149,9 +187,24 @@ function Main() {
         <Route
           exact
           path="/admin/addCharity"
-          render={() => <AddCharityPage getAddCharity={handleAddCharity} />}
+          render={() => (
+            <AddCharityPage
+              getAddCharity={handleAddCharity}
+              user={CURRENT_USER}
+            />
+          )}
         />
         <Route path="/admin/addCharity/:charityId" component={CharityWithId} />
+        <Route
+          exact
+          path="/admin/user"
+          render={() => <UserManager users={USERS} />}
+        />
+        <Route
+          exact
+          path="/admin/addUser"
+          render={() => <AddUserPage getAddUser={handleAddUser} />}
+        />
         <Route path="" component={PageNotFound} />
       </Switch>
     </div>

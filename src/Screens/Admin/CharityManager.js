@@ -14,16 +14,18 @@ function CharityManager(props) {
     checked,
     setCheckedCheckBox,
     checkedRadio,
-    setCheckedRadio
+    setCheckedRadio,
+    user
   } = props;
 
   return (
-    <section className="   CharityManagerPage">
+    <section className="CharityManagerPage">
       <div className="container-fluid">
         <h3>DANH SÁCH CÁC CHƯƠNG TRÌNH QUYÊN GÓP</h3>
-        <div className="charityManagerDetail ">
+        <div className="charityManagerDetail">
           <h5>
-            Tên Admin : <span>Admin1</span>{" "}
+            Tên Admin :{" "}
+            <span> {user && user.role === "admin" ? user.name : ""} </span>
           </h5>
         </div>
         <div className="d-flex justify-content-between charityManagerDetail ">

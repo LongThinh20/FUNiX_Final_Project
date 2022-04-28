@@ -12,33 +12,50 @@ const schema = yup
   .shape({
     title: yup
       .string()
-      .min(10, "Tối thiều 10 ký tự ...!")
+      .min(10, "Tiêu đề tối thiểu 10 ký tự ...!")
       .required("Chưa nhập tiêu đề ...!"),
     image: yup.string().required("Chưa chọn hình ảnh ...!"),
     summary: yup
       .string()
-      .min(10, "Tối thiều 10 ký tự ...!")
+      .min(10, "Tóm tắt tối thiểuu 10 ký tự ...!")
+      .max(400, "Tóm tắt tối đa 400 ký tự ...!")
       .required("Chưa nhập tóm tắt ...!"),
     content: yup
       .string()
-      .min(10, "Tối thiều 10 ký tự ...!")
+      .min(10, "Tối thiểu 10 ký tự ...!")
       .required("Chưa nhập nội dung ...!"),
     status: yup.string().required("Chưa chọn trạng thái ...!"),
     startDate: yup.string().required("Chưa chọn ngày bắt đầu ...!"),
-    endDate: yup.string().required("Chưa chọn ngày kết thúc ...!"),
+    // .date()
+    // .typeError("Chưa chọn ngày bắt đầu ...!")
+    endDate: yup
+      .date()
+      .typeError("Chưa chọn ngày kết thúc ...!")
+      .when("startDate", (startDate) => {
+        if (startDate) {
+          return yup
+            .date()
+            .min(startDate, "Ngày kết thúc phải lớn hơn ngày bắt đầu ...!")
+            .typeError("Ngày kết thúc không hợp lệ ...!");
+        }
+      }),
     expectedMoney: yup
       .number()
       .min(5000000, "Số tiền dự kiến tối thiểu là 5 triệu ...!")
       .typeError("Chưa nhập số tiền ...!")
-
       .required("Chưa nhập số tiền ...!")
       .nullable(),
-    organization: yup.string().required("Chưa nhập tên tổ chức ...!")
+    organization: yup
+      .string()
+      .min(3, "Tên tổ chức tối thiểu 3 ký tự ...!")
+      .required("Chưa nhập tên tổ chức ...!")
   })
   .required();
 
 function AddCharity(props) {
-  const { Id, charity, getAddCharity, getEditCharity } = props;
+  const { Id, charity, getAddCharity, getEditCharity, user } = props;
+
+  console.log(user);
 
   const defaultValues = {
     id: "" || Id,
@@ -95,19 +112,15 @@ function AddCharity(props) {
       }
     }
 
-    //
-    for (let value of formData.values()) {
-      console.log("fromdata", value);
-    }
-    //
+    // for (let value of formData.values()) {
+    //   console.log("fromdata", value);
+    // }
 
     if (Id) {
       getEditCharity(formData);
     } else {
       getAddCharity(formData);
     }
-
-    window.location.replace("/admin/charity");
   };
 
   const handleReset = () => {
