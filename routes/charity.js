@@ -1,20 +1,27 @@
 const express = require("express");
 const { body } = require("express-validator");
 
+const { auth } = require("../helpers/auth");
+
 const route = express.Router();
 
 const charityController = require("../controllers/charity");
 
 route.get("/allCharity", charityController.getAllCharity);
 
-route.get("/charity", charityController.getCharity);
+route.get("/charity", auth(["admin"]), charityController.getCharity);
 
-route.get("/addCharity", charityController.getAddCharityForm);
+route.get("/addCharity", auth(["admin"]), charityController.getAddCharityForm);
 
-route.get("/addCharity/:charityId", charityController.getAddCharityForm);
+route.get(
+  "/addCharity/:charityId",
+  auth(["admin"]),
+  charityController.getAddCharityForm
+);
 
 route.post(
   "/addCharity",
+  auth(["admin"]),
   body("title")
     .trim()
     .isString()
@@ -35,12 +42,12 @@ route.post(
     .isString()
     .isLength({ min: 3 })
     .withMessage("Nhân tên tổ chức / quỹ từ thiện từ 3 ký tự trở lên !"),
-  // body("endDate").custom((value, { req }) => {
-  //   if (req.body.startDate >= value) {
-  //     throw new Error("Ngày kết thúc phải lớn hơn ngày bắt đầu !");
-  //   }
-  //   return true;
-  // }),
+  body("endDate").custom((value, { req }) => {
+    if (req.body.startDate >= value) {
+      throw new Error("Ngày kết thúc phải lớn hơn ngày bắt đầu !");
+    }
+    return true;
+  }),
   body("expectedMoney").custom((value, { req }) => {
     if (value < 5000000) {
       throw new Error("Nhập số  tiền quyên góp tối thiểu là 5 triệu !");
@@ -52,6 +59,8 @@ route.post(
 
 route.post(
   "/editCharity",
+  auth(["admin"]),
+  auth(["admin"]),
   body("title")
     .trim()
     .isString()
@@ -90,15 +99,25 @@ route.post(
   charityController.editCharity
 );
 
-route.post("/deleteManyCharity", charityController.deleteManyCharity);
+route.post(
+  "/deleteManyCharity",
+  auth(["admin"]),
+  auth(["admin"]),
+  charityController.deleteManyCharity
+);
 
 route.delete(
   "/deleteOneCharity/:charityId",
+  auth(["admin"]),
   charityController.deleteOneCharity
 );
 
-route.get("/deleteManyCharity", charityController.getDeleteManyCharity);
+route.get(
+  "/deleteManyCharity",
+  auth(["admin"]),
+  charityController.getDeleteManyCharity
+);
 
-route.post("/filterCharity", charityController.filterCharity);
+route.post("/filterCharity", auth(["admin"]), charityController.filterCharity);
 
 module.exports = route;

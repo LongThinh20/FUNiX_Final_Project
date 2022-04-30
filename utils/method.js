@@ -43,27 +43,31 @@ class Methods {
   };
 
   deleteOne = async (item) => {
-    const charity = await Charity.find({ _id: item });
-    await deleteFile(charity[0].image);
+    const foundedCharity = await Charity.findById(item);
+    if (!foundedCharity) throw new Error("Charity not found!");
     const result = await Charity.deleteOne({ _id: item });
+    if (result.deletedCount === 0) throw new Error("Delete charity failed!");
+    await deleteFile(foundedCharity.image);
   };
   deleteMany = async (array) => {
-    let isCheck = true;
     for (let i of array) {
       const foundedCharity = await Charity.findById(i.trim());
-      if (!foundedCharity) isCheck = false;
+      if (!foundedCharity) throw new Error("Charity not found!");
+      const result = await Charity.deleteOne({ _id: i });
+      if (result.deletedCount === 0) throw new Error("Delete charity failed!");
+      await deleteFile(foundedCharity.image);
     }
-
-    if (!isCheck) {
-      return getCharity(req, res, "Xóa không thành công!", "danger");
-    }
-
-    const charity = await Charity.find({ _id: array });
-    for (let i of charity) {
-      await deleteFile(i.image);
-    }
-    const result = await Charity.deleteMany({ _id: array });
   };
+
+  ramdomTest(textLength) {
+    const textRamdom =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let text = "";
+    for (let i = 0; i < textLength; i++) {
+      text += textRamdom.charAt(Math.floor(Math.random() * textRamdom.length));
+    }
+    return text;
+  }
 }
 
 module.exports = new Methods();

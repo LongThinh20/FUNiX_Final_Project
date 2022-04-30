@@ -18,13 +18,13 @@
 }
 /* End charityManager */
 /*addCharity Page*/
-.addCharityPage {
+.addCharityPage,
+.addUserPage {
   padding: 50px 0;
   margin: auto;
   width: 600px;
 }
 /*End addCharity Page*/
-
 .pagination .active {
   background-color: rgba(135, 207, 235, 0.473);
 }
@@ -32,5 +32,14 @@
 .filterPage {
   padding: 50px 0;
 }
-
 /*End filterPage*/
+
+/*UserManger*/
+.userManager {
+  padding: 80px 0;
+}
+/*EndUserManager*/
+
+/*AddUserPage*/
+
+/*EndAddUserPage*/

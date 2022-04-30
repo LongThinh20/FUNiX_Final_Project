@@ -5,8 +5,16 @@
             <div class="container">
                 <h4>
                     <%= user? 'CẬP NHẬT NGƯỜI DÙNG' : 'THÊM NGƯỜI DÙNG' %>
-
                 </h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin/user">Danh sách người dùng</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <%= isEdit ? 'Cập nhật người dùng ' :'Thêm người dùng' %>
+                        </li>
+                    </ol>
+                </nav>
                 <% if(error){ %>
                     <div class="alert alert-danger text-center m-auto pb-2" style="width :50%" role="alert">
                         <% if(Array.isArray(error)){ %>
@@ -30,7 +38,7 @@
                                 </div>
                                 <% } %>
                                     <div class="form-group">
-                                        <label for="name">Họ và tên</label>
+                                        <label for="name">Họ và tên :</label>
                                         <input type="text" id="name" name="name" class="form-control"
                                             value="<%= hasError || user ?  user.name:'' %>" />
                                     </div>
@@ -41,7 +49,7 @@
                                     </div>
                                     <% if(!isEdit){ %>
                                         <div class="form-group">
-                                            <label for="password">Mật khẩu ;</label>
+                                            <label for="password">Mật khẩu :</label>
                                             <input type="password" id="password" name="password" class="form-control"
                                                 value="<%= hasError ?  user.password : '' %>" />
                                         </div>

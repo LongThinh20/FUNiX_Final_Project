@@ -4,106 +4,126 @@
         <section class="userManager">
             <div class="container-fluid">
                 <div class="container-fluid">
-                    <div>
-                        <form action="/admin/filterUser">
-                            <div>
-                                <label for="userName">tên người dung:</label>
-                                <input type="text" name="userName" id="userName" class="form-control">
+                    <% if(message.length>1){ %>
+                        <div class="alert  <%= status === 'danger'  ?  'alert-danger' 
+                        : status === 'success'? 'alert-success' :'alert-warning' 
+                        %>  success m-auto text-center" role="alert" id="success-alert" style="width : 250px">
+                            <%=message %>
+                        </div>
+                        <% } %>
+                            <h4>QUẢN LÝ NGƯỜI DÙNG</h4>
+
+                            <div class="d-flex justify-content-between">
+                                <div style="width:30%;">
+                                    <form action="/admin/filterUser">
+                                        <div>
+                                            <label for="userName" class="form-label">Tên người dùng:</label>
+                                            <input type="text" name="userName" id="userName" class="form-control">
+                                        </div>
+                                        <div>
+                                            <label for="phone" class="form-label">Số điện thoại:</label>
+                                            <input type="tel" name="phone" id="phone" class="form-control">
+                                        </div>
+                                        <button class="btn btn-primary mt-2" type="submit">Tìm</button>
+                                    </form>
+                                </div>
+                                <div>
+                                    <a href="/admin/addUser" class="btn btn-primary me-5 mt-5">THÊM NGƯỜI DÙNG</a>
+                                </div>
+
                             </div>
-                            <div>
-                                <label for="phone">Số điện thoại:</label>
-                                <input type="tel" name="phone" id="phone" class="form-control">
-                            </div>
-                            <button class="btn btn-primary" type="submit">gửi</button>
-                        </form>
-                    </div>
-                    <h4>DANH SÁCH NGƯỜI DÙNG</h4>
 
-                    <a href="/admin/addUser" class="btn btn-primary">THÊM NGƯỜI DÙNG</a>
 
-                    <div class="userManagerTable">
-                        <table class="table ">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th> Tên người dùng</th>
-                                    <th>Email </th>
-                                    <th>Họ và tên</th>
-                                    <th> Số điện thoại</th>
-                                    <th>Loại người dùng</th>
-                                    <th> Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
 
-                                <% if(users){ %>
-                                    <% for(let user of users) {%>
+
+
+
+                            <div class="userManagerTable">
+                                <table class="table ">
+                                    <thead>
                                         <tr>
-                                            <td>
-                                                <form action="/admin/deleteUser/<%= user._id %>" method="post">
-                                                    <button class="btn btn-danger mt-2" data-bs-toggle="modal"
-                                                        data-bs-target="#deleteMany" <%=user.role==='admin' ? 'disabled'
-                                                        : '' %> >
-                                                        XÓA
-                                                    </button>
-                                                    <div class="modal fade" id="deleteMany" tabindex="-1"
-                                                        aria-labelledby="deleteManyLabel" aria-hidden="true">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="deleteManyLabel">Bạn có
-                                                                        muốn
-                                                                        xóa không ?
-                                                                    </h5>
-                                                                    <button type="button" class="btn-close"
-                                                                        data-bs-dismiss="modal"
-                                                                        aria-label="Close"></button>
-                                                                </div>
+                                            <th></th>
+                                            <th> Tên người dùng</th>
+                                            <th>Email </th>
+                                            <th>Họ và tên</th>
+                                            <th> Số điện thoại</th>
+                                            <th>Loại người dùng</th>
+                                            <th> Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
 
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary"
-                                                                        data-bs-dismiss="modal">Close</button>
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger">Xóa</button>
+                                        <% if(users){ %>
+                                            <% for(let user of users) {%>
+                                                <tr>
+                                                    <td>
+
+                                                        <button class="btn btn-danger mt-2" data-bs-toggle="modal"
+                                                            data-bs-target="#user<%= user._id %>" <%=user.role==='admin'
+                                                            ? 'disabled' : '' %> >
+                                                            XÓA
+                                                        </button>
+                                                        <div class="modal fade" id="user<%=user._id %>" tabindex="
+                                                                -1" aria-labelledby="deleteManyLabel"
+                                                            aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteManyLabel">Bạn
+                                                                            có
+                                                                            muốn
+                                                                            xóa không ?
+                                                                        </h5>
+                                                                        <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                    </div>
+
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">Close</button>
+                                                                        <a href="/admin/deleteUser/<%=user._id%>"
+                                                                            class="btn btn-danger">Xóa</a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </form>
-                                                <a href="/admin/addUser/<%= user._id %>" class="btn btn-warning mt-2">
-                                                    SỬA</a>
-                                                <a href="/admin/resetPassword/<%= user._id %>"
-                                                    class="btn btn-info mt-2">
-                                                    RESET PASSWORD</a>
-                                            </td>
-                                            <td>
-                                                <%=user.userName%>
-                                            </td>
-                                            <td>
-                                                <%=user.email%>
-                                            </td>
-                                            <td>
-                                                <%= user.name %>
-                                            </td>
-                                            <td>
-                                                <%=user.phone%>
-                                            </td>
-                                            <td>
-                                                <%=user.role%>
-                                            </td>
-                                            <td>
-                                                <%=user.status? 'Xác thực' :'Chưa xác thực'%>
-                                            </td>
-                                        </tr>
 
-                                        <% } %>
-                                            <%} %>
+                                                        <a href="/admin/addUser/<%=user._id%>"
+                                                            class="btn btn-warning mt-2">
+                                                            SỬA</a>
+                                                        <a href="/admin/resetPassword/<%=user._id%>"
+                                                            class="btn btn-info mt-2">
+                                                            RESET PASSWORD</a>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.userName%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.email%>
+                                                    </td>
+                                                    <td>
+                                                        <%= user.name %>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.phone%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.role%>
+                                                    </td>
+                                                    <td>
+                                                        <%=user.status? 'Xác thực' :'Chưa xác thực'%>
+                                                    </td>
+                                                </tr>
 
-                            </tbody>
+                                                <% } %>
+                                                    <%} %>
 
-                        </table>
+                                    </tbody>
 
-                    </div>
+                                </table>
+
+                            </div>
 
 
                 </div>

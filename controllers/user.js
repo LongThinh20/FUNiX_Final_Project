@@ -3,6 +3,8 @@ const { validationResult } = require("express-validator");
 const sgmail = require("@sendgrid/mail");
 const config = require("config");
 
+const Methods = require("../utils/method");
+
 const sgAPIKey = config.get("sgAPIKey");
 
 sgmail.setApiKey(sgAPIKey);
@@ -11,13 +13,27 @@ const User = require("../models/user");
 
 const ITEMS_PER_PAGE = 3;
 
+const getAllUser = async (req, res) => {
+  try {
+    {
+      const result = await User.find().select("-password");
+      res.send(result);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Something went wrong!" });
+  }
+};
+
 const getUser = async (req, res, mess = "", status = "") => {
   try {
     const users = await User.find().select("-password");
 
     res.render("userManager/userManagerPage", {
       title: "DANH SÁCH NGƯỜI DÙNG",
-      users
+      users,
+      message: mess,
+      status
     });
   } catch (err) {
     console.error(err);
@@ -83,8 +99,8 @@ const addUser = async (req, res) => {
 
     const newUser = new User({
       name,
-      userName,
-      email,
+      userName: userName.replace(/\s/g, ""),
+      email: email.replace(/\s/g, ""),
       phone,
       role,
       password: newPassword
@@ -136,9 +152,9 @@ const editUser = async (req, res) => {
 
     const objEdit = {
       name,
-      email,
+      email: email.replace(/\s/g, ""),
       role,
-      phone
+      phone: phone
     };
 
     const filter = { _id: id.trim() };
@@ -158,7 +174,7 @@ const deleteUser = async (req, res) => {
     const foundedUser = await User.findById(userId.trim());
 
     if (!foundedUser) {
-      throw new Error("Không tồn tại!");
+      throw new Error("User Không tồn tại!");
     }
 
     if (foundedUser.role === "admin") {
@@ -167,24 +183,30 @@ const deleteUser = async (req, res) => {
 
     const resut = await User.deleteOne({ _id: userId });
 
-    res.redirect("/admin/user");
+    getUser(req, res, "Xóa thành công!", "success");
   } catch (err) {
     console.error(err);
+    getUser(req, res, "Xóa không thành công !", "danger");
   }
 };
 
 const filterUser = async (req, res) => {
   const { userName, phone } = req.query;
+
   try {
-    const resutl = await User.find({
+    const result = await User.find({
       $or: [
         { userName: { $regex: `^${userName}` }, phone: { $regex: `^${phone}` } }
       ]
     }).select("-_id");
 
+    res.send(result);
+
     res.render("userManager/userManagerPage", {
       title: "DANH SÁCH NGƯỜI DÙNG",
-      users: resutl
+      users: result,
+      message: "",
+      status: ""
     });
   } catch (err) {
     console.error(err);
@@ -198,26 +220,19 @@ const resetPassword = async (req, res) => {
 
   let checkPassword;
 
-  function ramdomTest() {
-    return Math.floor(Math.random() * 1001);
-  }
-
   try {
     const foundedUser = await User.findById(userId.trim());
-
     if (!foundedUser) {
       throw new Error("User is not exist!");
     }
-
     do {
-      newPassword = ramdomTest();
+      newPassword = Methods.ramdomTest(10);
+
       checkPassword = await User.findOne({ password: md5(newPassword) });
     } while (checkPassword);
-
     const objEdit = {
       password: md5(newPassword)
     };
-
     const filter = { _id: userId.trim() };
 
     let result = await User.findOneAndUpdate(filter, objEdit);
@@ -226,19 +241,22 @@ const resetPassword = async (req, res) => {
       .send({
         from: "toihoclaptrinh20@outlook.com",
         to: foundedUser.email,
-        subject: "welcom!",
-        html: `<h1>Mật khẩu mới:${md5(newPassword)}</h1>`
+        subject: "Hi!",
+        html: `<h1>Mật khẩu mới:${newPassword}</h1>`
       })
-      .then((res) => console.log("success!"))
-      .catch((err) => console.log(err));
+      .then((res) => console.log("Email sent successfully!"))
+      .catch((err) => {
+        throw new Error(err);
+      });
 
-    res.redirect("/admin/user");
+    getUser(req, res, "Reset mật khẩu thành công..!", "success");
   } catch (err) {
     console.error(err);
   }
 };
 
 module.exports = {
+  getAllUser,
   getUser,
   getAddUserForm,
   addUser,

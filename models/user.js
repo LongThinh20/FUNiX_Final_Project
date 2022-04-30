@@ -20,11 +20,13 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
-    validate: [checkEmail, "Invalid Email!!"]
+    validate: [checkEmail, "Invalid Email!!"],
+    unique: true
   },
   userName: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   password: { type: String, required: true, default: null },
   phone: {
@@ -32,11 +34,24 @@ const userSchema = new Schema({
     required: true,
     validate: [checkPhone, "Invalid Phone!"]
   },
+  tokens: {
+    type: [String],
+    default: []
+  },
   role: {
     type: String,
     default: "user"
   },
   status: { type: Boolean, default: false }
 });
+
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+
+  delete user.password;
+  delete user.tokens;
+
+  return user;
+};
 
 module.exports = mongoose.model("User", userSchema);

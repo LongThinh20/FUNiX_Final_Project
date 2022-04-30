@@ -1,5 +1,5 @@
 <%- include('../includes/head.ejs') %>
-    <%- include('../includes/navigation.ejs') %>
+    <%- include('../includes/navigation.ejs',isAuth) %>
 
         <section class="charityManager">
 
@@ -11,7 +11,12 @@
                         <%=message %>
                     </div>
                     <% } %>
+
+
                         <h4> QUẢN LÝ CHƯƠNG TRÌNH QUYÊN GÓP </h4>
+                        <h5 class="ms-3"> Tên Admin : <span class="text-secondary">
+                                <%= adminName %>
+                            </span> </h5>
                         <%- include('../includes/fillter.ejs') %>
                             <a class="btn btn-primary mt-2" href="/admin/addCharity">TẠO MỚI CHƯƠNG TRÌNH </a>
                             <form action="/admin/deleteManyCharity" method="post">

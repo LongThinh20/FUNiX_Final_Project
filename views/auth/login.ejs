@@ -1,0 +1,31 @@
+<%- include('../includes/head.ejs') %>
+    <%- include('../includes/navigation.ejs' ) %>
+
+        <section class="loginPage">
+
+            <div class="container">
+                <% if(typeof messError==='string' ){ %>
+                    <div class="alert alert-danger text-center m-auto pb-2" style="width :50%" role="alert">
+                        <%= messError %>
+                    </div>
+                    <% } %>
+                        <h4>ĐĂNG NHẬP </h4>
+                        <form action="/auth/login" method="post">
+
+                            <div class="form-group">
+                                <label for="userName" class="form-label">Tên người dùng :</label>
+                                <input class="form-control" type="text" name="userName" id="userName" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password :</label>
+                                <input class="form-control" type="password" name="password" id="password" />
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-4">
+                                Đăng nhập
+                            </button>
+                        </form>
+            </div>
+        </section>
+
+        <%- include('../includes/end.ejs') %>

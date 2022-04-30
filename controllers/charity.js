@@ -11,7 +11,11 @@ const ITEMS_PER_PAGE = 3;
 //get all
 const getAllCharity = async (req, res) => {
   try {
-    const charity = await Charity.find();
+    const charity = await Charity.find().populate({
+      path: "userId",
+      select: "name"
+    });
+
     res.send(charity);
   } catch (err) {
     console.err(err);
@@ -31,6 +35,7 @@ const getCharity = async (req, res, mess = "", status = "") => {
       .limit(ITEMS_PER_PAGE);
 
     res.render("charityManager/charityManagerPage", {
+      adminName: req.user.name,
       charities,
       moment,
       message: mess,
@@ -134,7 +139,7 @@ const addCharity = async (req, res) => {
       expectedMoney,
       status,
       date: new Date(),
-      userId: null,
+      userId: req.user,
       startDate,
       endDate,
       organization
@@ -143,12 +148,12 @@ const addCharity = async (req, res) => {
 
     console.log("POST CHARITY!");
 
-    res.send(result);
-
     res.redirect("/admin/charity");
+
+    res.send(result);
   } catch (err) {
     console.error(err.message);
-    // res.status(500).send({ err: err.message });
+    // res.status(500).send(err);
   }
 };
 
@@ -231,20 +236,20 @@ const editCharity = async (req, res) => {
 //DELETE /admin / deleteManyCharity
 const deleteManyCharity = async (req, res) => {
   const { checkDelete } = req.body;
+
   try {
     if (checkDelete === undefined) {
       return getCharity(req, res, "Chưa chọn đối tượng để xóa !", "warning");
     }
-
     if (Array.isArray(checkDelete)) {
       await Methods.deleteMany(checkDelete);
     } else {
       await Methods.deleteOne(checkDelete);
     }
-
     getCharity(req, res, "Xóa thành công", "success");
   } catch (err) {
     console.error(err.message);
+    getCharity(req, res, "Xóa không thành công!", "danger");
   }
 };
 
@@ -258,6 +263,7 @@ const getDeleteManyCharity = async (req, res) => {
       .limit(ITEMS_PER_PAGE);
 
     res.render("charityManager/charityManagerPage", {
+      adminName: req.user.name,
       charities,
       moment,
       message: "",

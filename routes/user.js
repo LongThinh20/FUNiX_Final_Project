@@ -4,8 +4,11 @@ const { body } = require("express-validator");
 const route = express.Router();
 
 const userController = require("../controllers/user");
+const { auth } = require("../helpers/auth");
 
-route.get("/user", userController.getUser);
+route.get("/allUser", userController.getAllUser);
+
+route.get("/user", auth(["admin"]), userController.getUser);
 
 route.get("/addUser", userController.getAddUserForm);
 
@@ -17,9 +20,13 @@ route.post(
     .trim()
     .isString()
     .isLength({ min: 3 })
-    .withMessage("userName"),
-  body("name").trim().isString().isLength({ min: 3 }).withMessage("name"),
-  body("email").trim().isEmail().withMessage("email"),
+    .withMessage("Nhập tên người dùng ít nhất 3 ký tự..!"),
+  body("name")
+    .trim()
+    .isString()
+    .isLength({ min: 3 })
+    .withMessage("Nhập họ tên ít nhất 3 ký tự ...!"),
+  body("email").trim().isEmail().withMessage("Chưa nhập email..!"),
   body("phone")
     .trim()
     .custom((value, { req }) => {
@@ -32,8 +39,8 @@ route.post(
   body("password")
     .trim()
     .isString()
-    .isLength({ min: 3 })
-    .withMessage("password"),
+    .isLength({ min: 3, max: 10 })
+    .withMessage("Nhập mật khẩu từ 3 đến 10 ký tự ...! "),
 
   userController.addUser
 );
@@ -53,7 +60,7 @@ route.post(
   userController.editUser
 );
 
-route.post("/deleteUser/:userId", userController.deleteUser);
+route.get("/deleteUser/:userId", userController.deleteUser);
 
 route.get("/filterUser", userController.filterUser);
 

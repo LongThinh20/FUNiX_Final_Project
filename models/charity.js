@@ -30,7 +30,7 @@ const charitySchema = new Schema({
     required: true,
     min: 10
   },
-  userId: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
   date: { type: Date, default: new Date() },
   expectedMoney: {
     type: Number,
