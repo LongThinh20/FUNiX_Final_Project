@@ -15,7 +15,11 @@ import Home from "./Screens/User/Home";
 import LoginPage from "./Screens/User/LoginPage";
 import SigupPage from "./Screens/User/SigupPage";
 
-import { domain, token } from "./Config/config";
+import { domain } from "./Config/config";
+
+import Axios from "axios";
+
+import { createAxios } from "./Helpers/createAxiotJWT";
 
 import {
   fetchCharities,
@@ -25,12 +29,18 @@ import {
   fetchUsers,
   postLogin,
   postLogout,
-  fetchUser
+  fetchUser,
+  filterUser
 } from "./Redux/actionCreators";
 
 import { useDispatch, useSelector } from "react-redux";
 import AddUserPage from "./Screens/Admin/AddUserPage";
-import Axios from "axios";
+
+const axiosJWT = Axios.create();
+
+Axios.defaults.withCredentials = true;
+
+const token = JSON.parse(localStorage.getItem("token"));
 
 function Main() {
   const dispatch = useDispatch();
@@ -40,15 +50,56 @@ function Main() {
   const [checkedRadio, setCheckedRadio] = useState();
 
   //get data from redux
+  // const token = useSelector((state) => state.users.token);
   const CHARITIES = useSelector((state) => state.charities.charities);
   const USERS = useSelector((state) => state.users.users);
   const CURRENT_USER = useSelector((state) => state.users.currentUser);
 
+  //
+  const refreshToken = async () => {
+    try {
+      const res = await Axios({
+        url: `${domain}/auth/resetToken`,
+        method: "post",
+        withCredentials: true
+      });
+      return res.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  //
+
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
+
+      const decodeToken = jwt_decode(token);
+
+      if (decodeToken.exp < date.getTime() / 1000) {
+        console.log("expToken");
+
+        const res = await refreshToken();
+
+        console.log("newToken", res);
+
+        if (res.data) localStorage.setItem("token", res);
+
+        config.headers["Authorization"] = "Bearer " + res;
+      }
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+  //
+
   useEffect(() => {
-    dispatch(fetchUser());
-    dispatch(fetchCharities());
-    dispatch(fetchUsers());
-  }, [dispatch]);
+    fetchUser(token, dispatch, axiosJWT);
+    fetchCharities(dispatch);
+    fetchUsers(token, dispatch);
+  }, []);
   //
 
   //handle Login
@@ -139,8 +190,13 @@ function Main() {
   };
 
   //handle add user
-
   const handleAddUser = (user) => {};
+
+  //handle Filter User
+
+  const handleFilterUser = (searchTerm) => {
+    dispatch(filterUser(searchTerm));
+  };
   //get charity for EditCharity Page
   const CharityWithId = ({ match }) => {
     return (
@@ -198,7 +254,13 @@ function Main() {
         <Route
           exact
           path="/admin/user"
-          render={() => <UserManager users={USERS} />}
+          render={() => (
+            <UserManager
+              users={USERS}
+              user={CURRENT_USER}
+              handleFilterUser={handleFilterUser}
+            />
+          )}
         />
         <Route
           exact

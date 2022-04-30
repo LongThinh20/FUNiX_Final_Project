@@ -5,11 +5,16 @@ import { domain } from "../Config/config";
 
 Axios.defaults.withCredentials = true;
 
-export const fetchUser = (token) => async (dispatch) => {
+export const fetchUser = async (token, dispatch, axiosJWT) => {
   try {
-    const result = await Axios.get(`${domain}/auth/me`, {
-      withCredentials: true
+    const result = await axiosJWT({
+      method: "get",
+      url: `${domain}/auth/me`,
+      headers: {
+        Authorization: `Bearer ${token} `
+      }
     });
+
     return dispatch(addUserCurrent(result.data));
   } catch (err) {
     console.log(err);
@@ -32,6 +37,10 @@ export const postLogin = async (user) => {
       data: user
     });
 
+    console.log("token", res.data);
+
+    localStorage.setItem("token", JSON.stringify(res.data));
+
     return window.location.replace("/");
   } catch (err) {
     return console.log(err);
@@ -45,8 +54,7 @@ export const postLogout = (token) => async (dispatch) => {
       url: `${domain}/auth/logout`,
       headers: {
         Authorization: `Bearer ${token}`
-      },
-      withCredentials: true
+      }
     });
     dispatch(logoutUser(result));
     localStorage.removeItem("token");
@@ -69,7 +77,7 @@ export const logoutUser = () => {
   };
 };
 //get charity
-export const fetchCharities = () => async (dispatch) => {
+export const fetchCharities = async (dispatch) => {
   try {
     const res = await Axios({
       method: "get",
@@ -161,14 +169,32 @@ export const editCharity = (charity) => async (dispatch) => {
 
 //get all User
 
-export const fetchUsers = () => async (dispatch) => {
+export const fetchUsers = async (token, dispatch) => {
   try {
     const res = await Axios({
       method: "GET",
-      url: `${domain}/admin/allUser`
+      url: `${domain}/admin/allUser`,
+      headers: {
+        Authorization: `Bearer ${token} `
+      }
     });
     return dispatch(getUsers(res.data));
   } catch (err) {
     return console.log(err);
+  }
+};
+
+//filter user
+
+export const filterUser = (searchTerm) => async (dispatch) => {
+  try {
+    const res = await Axios({
+      method: "get",
+      url: `${domain}/admin/filterUser?userName=${searchTerm.userName}&phone=${searchTerm.phone}`,
+      withCredentials: true
+    });
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
   }
 };

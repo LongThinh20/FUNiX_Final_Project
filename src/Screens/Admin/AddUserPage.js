@@ -1,7 +1,15 @@
 import React from "react";
 
 function AddUserPage() {
-  return <div>AddUserPage</div>;
+  return (
+    <section className="addUserPage">
+      <form>
+        <div className="form-group">
+          <input className="form-control" />
+        </div>
+      </form>
+    </section>
+  );
 }
 
 export default AddUserPage;

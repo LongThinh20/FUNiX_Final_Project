@@ -1,18 +1,30 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import UserFilter from "./Components/UserFilter";
 
 function UserManager(props) {
-  const { users } = props;
+  const { users, user, handleFilterUser } = props;
   return (
     <div>
       <section className="userManagerPage">
         <div className="container-fluid">
           <h4> QUẢN LÝ NGƯỜI DÙNG</h4>
+          <div className="userManagerDetail">
+            <h5>
+              Tên Admin :{" "}
+              <span> {user && user.role === "admin" ? user.name : ""} </span>
+            </h5>
+          </div>
 
-          <div>
-            <NavLink to="/admin/addUser" className="btn btn-primary">
-              Thêm người dùng
-            </NavLink>
+          <div className="d-flex justify-content-between userManagerDetail ">
+            <div>
+              <UserFilter handleFilterUser={handleFilterUser} />
+            </div>
+            <div className="align-self-end">
+              <NavLink to="/admin/addUser" className="btn btn-primary">
+                Thêm người dùng
+              </NavLink>
+            </div>
           </div>
 
           <table className="table  hover table-striped table-bordered">
