@@ -14,12 +14,11 @@ import AddCharityPage from "./Screens/Admin/AddCharityPage";
 import Home from "./Screens/User/Home";
 import LoginPage from "./Screens/User/LoginPage";
 import SigupPage from "./Screens/User/SigupPage";
+import ChangePasswordPage from "./Screens/User/ChangePasswordPage";
 
 import { domain } from "./Config/config";
 
 import Axios from "axios";
-
-import { createAxios } from "./Helpers/createAxiotJWT";
 
 import {
   fetchCharities,
@@ -30,11 +29,14 @@ import {
   postLogin,
   postLogout,
   fetchUser,
-  filterUser
+  filterUser,
+  checkPass
 } from "./Redux/actionCreators";
 
 import { useDispatch, useSelector } from "react-redux";
 import AddUserPage from "./Screens/Admin/AddUserPage";
+import UserPage from "./Screens/User/UserPage";
+import ConfirmPasswordPage from "./Screens/User/ConfirmPasswordPage";
 
 const axiosJWT = Axios.create();
 
@@ -50,7 +52,6 @@ function Main() {
   const [checkedRadio, setCheckedRadio] = useState();
 
   //get data from redux
-  // const token = useSelector((state) => state.users.token);
   const CHARITIES = useSelector((state) => state.charities.charities);
   const USERS = useSelector((state) => state.users.users);
   const CURRENT_USER = useSelector((state) => state.users.currentUser);
@@ -68,7 +69,6 @@ function Main() {
       console.log(err);
     }
   };
-  //
 
   axiosJWT.interceptors.request.use(
     async (config) => {
@@ -77,15 +77,13 @@ function Main() {
       const decodeToken = jwt_decode(token);
 
       if (decodeToken.exp < date.getTime() / 1000) {
-        console.log("expToken");
-
         const res = await refreshToken();
 
-        console.log("newToken", res);
+        if (res) {
+          localStorage.setItem("token", JSON.stringify(res));
 
-        if (res.data) localStorage.setItem("token", res);
-
-        config.headers["Authorization"] = "Bearer " + res;
+          config.headers["Authorization"] = "Bearer " + res;
+        }
       }
       return config;
     },
@@ -93,12 +91,15 @@ function Main() {
       return Promise.reject(err);
     }
   );
+
   //
 
   useEffect(() => {
-    fetchUser(token, dispatch, axiosJWT);
+    if (token) {
+      fetchUser(token, dispatch, axiosJWT);
+      fetchUsers(token, dispatch);
+    }
     fetchCharities(dispatch);
-    fetchUsers(token, dispatch);
   }, []);
   //
 
@@ -108,7 +109,7 @@ function Main() {
   };
 
   const handleLogout = () => {
-    dispatch(postLogout(JSON.parse(token)));
+    postLogout(token, dispatch, axiosJWT);
   };
 
   //handleDeleteCharity
@@ -192,6 +193,17 @@ function Main() {
   //handle add user
   const handleAddUser = (user) => {};
 
+  //handle add user
+  const handleCheckPassword = (user) => {
+    checkPass(token, user);
+  };
+
+  //handele Change pass
+
+  const handleChangePass = (pass) => {
+    console.log(pass);
+  };
+
   //handle Filter User
 
   const handleFilterUser = (searchTerm) => {
@@ -220,6 +232,24 @@ function Main() {
           path="/login"
           exact
           render={() => <LoginPage handleLogin={handleLogin} />}
+        />
+        <Route path="/sigup" exact render={() => <SigupPage />} />
+        <Route path="/user" exact render={() => <UserPage />} />
+        <Route
+          path="/password"
+          exact
+          render={() => (
+            <ConfirmPasswordPage
+              handleCheckPassword={handleCheckPassword}
+              user={CURRENT_USER}
+            />
+          )}
+        />
+        <Route
+          path="/password/changePass"
+          render={() => (
+            <ChangePasswordPage handleChangePass={handleChangePass} />
+          )}
         />
         <Route path="/" exact render={() => <Home charities={CHARITIES} />} />
         <Route

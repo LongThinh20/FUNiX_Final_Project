@@ -1,39 +1,50 @@
-// import Axios from "axios";
-// import jwt_decode from "jwt-decode";
-// import { domain } from "../Config/config";
+import { domain } from "../Config/config";
+import Axios from "axios";
+import jwt_decode from "jwt-decode";
 
-// const refreshToken = async () => {
-//   try {
-//     const res = await Axios.post(`${domain}/auth/resetToken`, {
-//       withCredentials: true
-//     });
-//     return res.data;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
+const axiosJWT = Axios.create();
 
-// export const createAxios = () => {
-//   const axiosJWT = Axios.create();
+Axios.defaults.withCredentials = true;
 
-//   Axios.interceptors.request.use(
-//     async (config) => {
-//       let date = new Date();
-//       const decodeToken = jwt_decode(JSON.parse(token));
+const token = JSON.parse(localStorage.getItem("token"));
 
-//       console.log(decodeToken);
+const refreshToken = async () => {
+  try {
+    const res = await Axios({
+      url: `${domain}/auth/resetToken`,
+      method: "post",
+      withCredentials: true
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-//       if (decodeToken.exp < date.getTime() / 1000) {
-//         const data = await refreshToken();
+export const testtttt = async () => {
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let date = new Date();
 
-//         localStorage.setItem("token", JSON.stringify(data));
+      const decodeToken = jwt_decode(token);
 
-//         config.headers["Authorization"] = "Bearer " + data;
-//       }
-//       return config;
-//     },
-//     (err) => {
-//       return Promise.reject(err);
-//     }
-//   );
-// };
+      if (decodeToken.exp < date.getTime() / 1000) {
+        console.log("expToken");
+
+        const res = await refreshToken();
+
+        console.log("newToken", res);
+
+        if (res) {
+          localStorage.setItem("token", JSON.stringify(res));
+
+          config.headers["Authorization"] = "Bearer " + res;
+        }
+      }
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
+};

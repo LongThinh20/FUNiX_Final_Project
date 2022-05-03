@@ -1,4 +1,5 @@
 import React from "react";
+import { domain } from "../../Config/config";
 
 function LoginPage(props) {
   const { handleLogin } = props;
@@ -20,7 +21,7 @@ function LoginPage(props) {
         <h4>Đăng nhập</h4>
         <form onSubmit={(e) => submit(e)}>
           <div className="form-group">
-            <label htmlFor="userName">Tên người dùng :</label>
+            ư<label htmlFor="userName">Tên người dùng :</label>
             <input
               type="text"
               name="userName"
@@ -38,8 +39,11 @@ function LoginPage(props) {
             />
           </div>
           <button className="btn btn-primary mt-2" type="submit">
-            Gửi
+            Đăng nhập
           </button>
+          <a className="btn btn-outline-info mt-2 ms-2" href={`${domain}/`}>
+            Quên mật khẩu ?
+          </a>
         </form>
       </div>
     </section>

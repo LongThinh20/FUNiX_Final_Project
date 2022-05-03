@@ -51,9 +51,43 @@ function Header(props) {
             <ul className="navbar-nav">
               {role ? (
                 <>
+                  <li className="nav-item dropdown">
+                    <NavLink
+                      className="nav-link dropdown-toggle"
+                      to="/user"
+                      id="navbarDropdown"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <button className="btn btn-outline-info">
+                        Xin chào ! {user?.name}
+                      </button>
+                    </NavLink>
+
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby="navbarDropdown"
+                    >
+                      <li>
+                        <NavLink className="dropdown-item" to="/user">
+                          Thông tin cá nhân
+                        </NavLink>
+                      </li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <NavLink className="dropdown-item" to="/password">
+                          Đổi mật khẩu
+                        </NavLink>
+                      </li>
+                    </ul>
+                  </li>
+
                   <li className="nav-item">
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-outline-primary mt-2"
                       onClick={() => {
                         handleLogout();
                       }}

@@ -5,9 +5,11 @@ import { domain } from "../Config/config";
 
 Axios.defaults.withCredentials = true;
 
-export const fetchUser = async (token, dispatch, axiosJWT) => {
+const token = JSON.parse(localStorage.getItem("token"));
+
+export const fetchUser = async (token, dispatch, textJWt) => {
   try {
-    const result = await axiosJWT({
+    const result = await textJWt({
       method: "get",
       url: `${domain}/auth/me`,
       headers: {
@@ -17,7 +19,7 @@ export const fetchUser = async (token, dispatch, axiosJWT) => {
 
     return dispatch(addUserCurrent(result.data));
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -47,9 +49,9 @@ export const postLogin = async (user) => {
   }
 };
 //
-export const postLogout = (token) => async (dispatch) => {
+export const postLogout = async (token, dispatch, axiosJWT) => {
   try {
-    const result = await Axios({
+    const result = await axiosJWT({
       method: "POST",
       url: `${domain}/auth/logout`,
       headers: {
@@ -122,7 +124,10 @@ export const addCharity = (charity) => async (dispatch) => {
     await Axios({
       method: "POST",
       url: `${domain}/admin/addCharity`,
-      data: charity
+      data: charity,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     Swal.fire({
       position: "center",
@@ -191,10 +196,33 @@ export const filterUser = (searchTerm) => async (dispatch) => {
     const res = await Axios({
       method: "get",
       url: `${domain}/admin/filterUser?userName=${searchTerm.userName}&phone=${searchTerm.phone}`,
-      withCredentials: true
+      headers: {
+        Authorization: `Bearer ${token} `
+      }
     });
     console.log(res.data);
   } catch (err) {
     console.log(err);
+  }
+};
+
+//checkpass
+export const checkPass = async (token, pass) => {
+  try {
+    const res = await Axios({
+      method: "post",
+      url: `${domain}/auth/checkMe`,
+      headers: {
+        Authorization: `Bearer ${token} `
+      },
+      data: pass
+    });
+    if (res.data) {
+      window.location.replace("/password/changePass");
+    }
+  } catch (err) {
+    console.log(err);
+
+    alert("Không đúng mật khẩu");
   }
 };
