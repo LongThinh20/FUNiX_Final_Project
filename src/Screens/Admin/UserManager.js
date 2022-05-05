@@ -1,9 +1,28 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import UserFilter from "./Components/UserFilter";
+import Swal from "sweetalert2";
 
 function UserManager(props) {
-  const { users, user, handleFilterUser } = props;
+  const { users, user, handleFilterUser, handleDeleteUser, handeResetFilter } =
+    props;
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa không ?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Xóa "
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeleteUser(id);
+      }
+    });
+  };
+
   return (
     <div>
       <section className="userManagerPage">
@@ -15,10 +34,12 @@ function UserManager(props) {
               <span> {user && user.role === "admin" ? user.name : ""} </span>
             </h5>
           </div>
-
           <div className="d-flex justify-content-between userManagerDetail ">
             <div>
-              <UserFilter handleFilterUser={handleFilterUser} />
+              <UserFilter
+                handleFilterUser={handleFilterUser}
+                handeResetFilter={handeResetFilter}
+              />
             </div>
             <div className="align-self-end">
               <NavLink to="/admin/addUser" className="btn btn-primary">
@@ -26,7 +47,6 @@ function UserManager(props) {
               </NavLink>
             </div>
           </div>
-
           <table className="table  hover table-striped table-bordered">
             <thead>
               <tr>
@@ -43,8 +63,21 @@ function UserManager(props) {
               {users?.map((user) => (
                 <tr key={user._id}>
                   <td>
-                    <button className="btn btn-danger"> XÓA</button>
-                    <a className="btn btn-warning ms-2">SỬA</a>
+                    <button
+                      className="btn btn-danger"
+                      disabled={user.role === "admin" ? true : false}
+                      onClick={() => {
+                        handleDelete(user._id);
+                      }}
+                    >
+                      XÓA
+                    </button>
+                    <NavLink
+                      className="btn btn-warning ms-2"
+                      to={`/admin/addUser/${user._id}`}
+                    >
+                      SỬA
+                    </NavLink>
                     <a className="btn btn-info ms-2">RESET PASSWORD</a>
                   </td>
                   <td>{user.userName}</td>

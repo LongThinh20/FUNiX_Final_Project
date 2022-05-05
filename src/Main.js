@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 
@@ -30,13 +30,21 @@ import {
   postLogout,
   fetchUser,
   filterUser,
-  checkPass
+  checkPass,
+  sigup,
+  deleteUser,
+  addUser,
+  editUser,
+  fetchCharitiesForClient,
+  filterCharity
 } from "./Redux/actionCreators";
 
 import { useDispatch, useSelector } from "react-redux";
 import AddUserPage from "./Screens/Admin/AddUserPage";
 import UserPage from "./Screens/User/UserPage";
 import ConfirmPasswordPage from "./Screens/User/ConfirmPasswordPage";
+import UserManagerPage from "./Template/UserManager";
+import UserManagerLayout from "./Template/UserManager";
 
 const axiosJWT = Axios.create();
 
@@ -98,8 +106,9 @@ function Main() {
     if (token) {
       fetchUser(token, dispatch, axiosJWT);
       fetchUsers(token, dispatch);
+      fetchCharities(token, dispatch, axiosJWT);
     }
-    fetchCharities(dispatch);
+    fetchCharitiesForClient(dispatch);
   }, []);
   //
 
@@ -123,8 +132,7 @@ function Main() {
       confirmButtonText: "Xóa!"
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(id);
-        dispatch(deleteCharity(id));
+        deleteCharity(token, id, dispatch, axiosJWT);
         // Swal.fire("Deleted!", "Your file has been deleted.", "success");
       }
     });
@@ -132,7 +140,7 @@ function Main() {
 
   //handleAddCharity
   const handleAddCharity = (charity) => {
-    dispatch(addCharity(charity));
+    addCharity(token, charity, dispatch, axiosJWT);
   };
 
   //handleEditCharity
@@ -142,56 +150,22 @@ function Main() {
 
   //handle filter
   const handeFilter = (condition) => {
-    function checkAll(value) {
-      switch (this.expectedMoney) {
-        case 1:
-          return value.expectedMoney < 50000000 && this.status === value.status;
-        case 2:
-          return (
-            value.expectedMoney >= 50000000 &&
-            value.expectedMoney <= 200000000 &&
-            this.status === value.status
-          );
-        default:
-          return (
-            value.expectedMoney > 200000000 && this.status === value.status
-          );
-      }
-    }
-    function checkExpectedMoney(value) {
-      switch (this.expectedMoney) {
-        case 1:
-          return value.expectedMoney < 50000000;
-        case 2:
-          return (
-            value.expectedMoney >= 50000000 && value.expectedMoney <= 200000000
-          );
-        default:
-          return value.expectedMoney > 200000000;
-      }
-    }
-    function checkStatus(value) {
-      return this.status === value.status;
-    }
-
-    if (condition.status === undefined) {
-      setResultFilter(CHARITIES.filter(checkExpectedMoney, condition));
-    }
-    if (condition.expectedMoney === undefined) {
-      setResultFilter(CHARITIES.filter(checkStatus, condition));
-    }
-    if (condition.expectedMoney && condition.status) {
-      setResultFilter(CHARITIES.filter(checkAll, condition));
-    }
+    filterCharity(condition, dispatch);
   };
   const handleResetFilter = () => {
-    setResultFilter();
-    setCheckedCheckBox();
-    setCheckedRadio();
+    if (token) return fetchCharities(token, dispatch, axiosJWT);
   };
 
   //handle add user
-  const handleAddUser = (user) => {};
+  const handleAddUser = (user) => {
+    addUser(token, user, dispatch, axiosJWT);
+  };
+
+  //handle add user
+  const handleSigup = (user) => {
+    console.log(user);
+    sigup(user);
+  };
 
   //handle add user
   const handleCheckPassword = (user) => {
@@ -204,13 +178,28 @@ function Main() {
     console.log(pass);
   };
 
+  //handele DeleteUser
+
+  const handleDeleteUser = (id) => {
+    deleteUser(token, id, dispatch, axiosJWT);
+  };
   //handle Filter User
 
   const handleFilterUser = (searchTerm) => {
-    dispatch(filterUser(searchTerm));
+    filterUser(searchTerm, dispatch, axiosJWT);
+  };
+  //hande edit User
+
+  const handleEditUser = (user) => {
+    editUser(token, user, dispatch, axiosJWT);
+  };
+
+  //handle reset filter
+  const handeResetFilter = () => {
+    fetchUsers(token, dispatch);
   };
   //get charity for EditCharity Page
-  const CharityWithId = ({ match }) => {
+  const GetCharityWithId = ({ match }) => {
     return (
       <AddCharityPage
         getEditCharity={handleEditCharity}
@@ -224,64 +213,84 @@ function Main() {
 
   //fetchData
 
+  // const GetUserWithId = ({ match }) => {
+  //   return (
+  //     <AddUserPage
+  //       handleEditUser={handleEditUser}
+  //       user={USERS.filter(
+  //         (user) => user._id === match.params.userId.toString()
+  //       )}
+  //     />
+  //   );
+  // };
+
   return (
     <div>
       <Header user={CURRENT_USER} handleLogout={handleLogout} />
-      <Switch>
-        <Route
-          path="/login"
-          exact
-          render={() => <LoginPage handleLogin={handleLogin} />}
-        />
-        <Route path="/sigup" exact render={() => <SigupPage />} />
-        <Route path="/user" exact render={() => <UserPage />} />
-        <Route
-          path="/password"
-          exact
-          render={() => (
-            <ConfirmPasswordPage
-              handleCheckPassword={handleCheckPassword}
-              user={CURRENT_USER}
-            />
-          )}
-        />
-        <Route
-          path="/password/changePass"
-          render={() => (
-            <ChangePasswordPage handleChangePass={handleChangePass} />
-          )}
-        />
-        <Route path="/" exact render={() => <Home charities={CHARITIES} />} />
-        <Route
-          exact
-          path="/admin/charity"
-          render={() => (
-            <CharityManager
-              user={CURRENT_USER}
-              charities={CHARITIES}
-              resultFilter={resultFilter}
-              deleteCharity={handleDeleteCharity}
-              filterCharity={handeFilter}
-              resetFilter={handleResetFilter}
-              checked={checked}
-              setCheckedCheckBox={setCheckedCheckBox}
-              checkedRadio={checkedRadio}
-              setCheckedRadio={setCheckedRadio}
-            />
-          )}
-        />
-        <Route
-          exact
-          path="/admin/addCharity"
-          render={() => (
-            <AddCharityPage
-              getAddCharity={handleAddCharity}
-              user={CURRENT_USER}
-            />
-          )}
-        />
-        <Route path="/admin/addCharity/:charityId" component={CharityWithId} />
-        <Route
+      <Fragment>
+        <Switch>
+          <Route
+            path="/login"
+            exact
+            render={() => <LoginPage handleLogin={handleLogin} />}
+          />
+          <Route
+            path="/sigup"
+            exact
+            render={() => <SigupPage handleSigup={handleSigup} />}
+          />
+          <Route path="/user" exact render={() => <UserPage />} />
+          <Route
+            path="/password"
+            exact
+            render={() => (
+              <ConfirmPasswordPage
+                handleCheckPassword={handleCheckPassword}
+                user={CURRENT_USER}
+              />
+            )}
+          />
+          <Route
+            path="/password/changePass"
+            render={() => (
+              <ChangePasswordPage handleChangePass={handleChangePass} />
+            )}
+          />
+
+          <Route path="/" exact render={() => <Home charities={CHARITIES} />} />
+          <Route
+            exact
+            path="/admin/charity"
+            render={() => (
+              <CharityManager
+                user={CURRENT_USER}
+                charities={CHARITIES}
+                resultFilter={resultFilter}
+                deleteCharity={handleDeleteCharity}
+                filterCharity={handeFilter}
+                resetFilter={handleResetFilter}
+                checked={checked}
+                setCheckedCheckBox={setCheckedCheckBox}
+                checkedRadio={checkedRadio}
+                setCheckedRadio={setCheckedRadio}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/admin/addCharity"
+            render={() => (
+              <AddCharityPage
+                getAddCharity={handleAddCharity}
+                user={CURRENT_USER}
+              />
+            )}
+          />
+          <Route
+            path="/admin/addCharity/:charityId"
+            component={GetCharityWithId}
+          />
+          {/* <Route
           exact
           path="/admin/user"
           render={() => (
@@ -289,16 +298,38 @@ function Main() {
               users={USERS}
               user={CURRENT_USER}
               handleFilterUser={handleFilterUser}
+              handleDeleteUser={handleDeleteUser}
+              handeResetFilter={handeResetFilter}
             />
           )}
         />
         <Route
           exact
           path="/admin/addUser"
-          render={() => <AddUserPage getAddUser={handleAddUser} />}
+          render={() => (
+            <AddUserPage
+              getAddUser={handleAddUser}
+              handleAddUser={handleAddUser}
+            />
+          )}
         />
-        <Route path="" component={PageNotFound} />
-      </Switch>
+        <Route path="/admin/addUser/:userId" component={GetUserWithId} /> */}
+
+          {CURRENT_USER === "admin"
+            ? UserManagerLayout(
+                USERS,
+                CURRENT_USER,
+                handleFilterUser,
+                handleDeleteUser,
+                handeResetFilter,
+                handleAddUser,
+                handleEditUser
+              )
+            : ""}
+          {/* {HomeLayout(CURRENT_USER, CHARITIES, dispatch, token)} */}
+          <Route path="*" component={PageNotFound} />
+        </Switch>
+      </Fragment>
     </div>
   );
 }

@@ -78,12 +78,27 @@ export const logoutUser = () => {
     type: ActionTypes.LOGOUT_USER
   };
 };
-//get charity
-export const fetchCharities = async (dispatch) => {
+
+export const fetchCharitiesForClient = async (dispatch) => {
   try {
     const res = await Axios({
       method: "get",
-      url: `${domain}/admin/allCharity`
+      url: `${domain}/allCharity`
+    });
+    return dispatch(getCharity(res.data));
+  } catch (err) {
+    return console.log(err);
+  }
+};
+//get charity
+export const fetchCharities = async (token, dispatch, axiosJWT) => {
+  try {
+    const res = await axiosJWT({
+      method: "get",
+      url: `${domain}/admin/allCharity`,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     return dispatch(getCharity(res.data));
   } catch (err) {
@@ -99,29 +114,37 @@ export const getCharity = (charity) => {
 };
 
 //delete
-export const deleteCharity = (id) => async (dispatch) => {
+export const deleteCharity = async (token, id, dispatch, axiosJWT) => {
   try {
-    const res = await Axios({
+    const res = await axiosJWT({
       method: "DELETE",
-      url: `${domain}/admin/deleteOneCharity/${id}`
+      url: `${domain}/admin/deleteOneCharity/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
-    Swal.fire({
-      position: "center",
-      icon: "success",
-      title: "Xóa Thành công !",
-      showConfirmButton: false,
-      timer: 2000
-    });
-    dispatch(fetchCharities());
+
+    if (res.data) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Xóa thành công!",
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        fetchCharities(dispatch);
+      });
+    }
   } catch (err) {
-    return console.log(err);
+    console.log(err);
+    Swal.fire("Thất bại", "Xóa thất bại", "error");
   }
 };
 
 //add
-export const addCharity = (charity) => async (dispatch) => {
+export const addCharity = async (token, charity, dispatch, axiosJWT) => {
   try {
-    await Axios({
+    await axiosJWT({
       method: "POST",
       url: `${domain}/admin/addCharity`,
       data: charity,
@@ -136,7 +159,7 @@ export const addCharity = (charity) => async (dispatch) => {
       showConfirmButton: false,
       timer: 2000
     });
-    dispatch(fetchCharities());
+    fetchCharities(dispatch);
     return window.location.replace("/admin/charity");
   } catch (err) {
     Swal.fire({
@@ -190,17 +213,19 @@ export const fetchUsers = async (token, dispatch) => {
 };
 
 //filter user
-
-export const filterUser = (searchTerm) => async (dispatch) => {
+export const filterUser = async (searchTerm, dispatch, axiosJWT) => {
   try {
-    const res = await Axios({
+    const res = await axiosJWT({
       method: "get",
       url: `${domain}/admin/filterUser?userName=${searchTerm.userName}&phone=${searchTerm.phone}`,
       headers: {
         Authorization: `Bearer ${token} `
       }
     });
-    console.log(res.data);
+
+    if (res.data) {
+      dispatch(getUsers(res.data));
+    }
   } catch (err) {
     console.log(err);
   }
@@ -222,7 +247,128 @@ export const checkPass = async (token, pass) => {
     }
   } catch (err) {
     console.log(err);
+    Swal.fire("Thất bại", "Mật khẩu không đúng", "error");
+  }
+};
 
-    alert("Không đúng mật khẩu");
+export const sigup = async (user) => {
+  try {
+    const result = await Axios({
+      method: "post",
+      url: `${domain}/auth/sigup`,
+      data: user
+    });
+
+    if (result.data) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Kiểm tra email để đăng nhập !",
+        showConfirmButton: false,
+        timer: 2500
+      }).then(() => {
+        return window.location.replace("/");
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      position: "center",
+      icon: "error",
+      title: "Đăng ký thất bại",
+      showConfirmButton: false,
+      timer: 2000
+    });
+    console.log(err);
+  }
+};
+
+export const deleteUser = async (token, id, dispatch, axiosJWT) => {
+  try {
+    const result = await axiosJWT({
+      method: "get",
+      url: `${domain}/admin/deleteUser/${id}`,
+      headers: {
+        Authorization: `Bearer ${token} `
+      }
+    });
+    if (result.data) {
+      Swal.fire("Đã xóa!", "Người dùng đã được xóa", "success");
+      return fetchUsers(token, dispatch);
+    }
+  } catch (err) {
+    console.log(err);
+    Swal.fire("Thất bại", "Có lỗi xãy ra", "error");
+  }
+};
+
+export const addUser = async (token, user, dispatch, axiosJWT) => {
+  try {
+    const result = await axiosJWT({
+      method: "post",
+      url: `${domain}/admin/addUser`,
+      headers: {
+        Authorization: `Bearer ${token} `
+      },
+      data: user
+    });
+
+    if (result.data) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Thêm người dùng thành công",
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        fetchUsers(token, dispatch);
+        window.location.replace("/admin/user");
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    Swal.fire("Thất bại", "Có lỗi xãy ra", "error");
+  }
+};
+
+export const editUser = async (token, user, dispatch, axiosJWT) => {
+  try {
+    const result = await axiosJWT({
+      method: "post",
+      url: `${domain}/admin/editUser`,
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      data: user
+    });
+    if (result.data) {
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Cập nhật người dùng thành công!",
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        fetchUsers(token, dispatch);
+        return window.location.replace("/admin/user");
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    Swal.fire("Thất bại", "Có lỗi xãy ra", "error");
+  }
+};
+
+export const filterCharity = async (searchTerm, dispatch) => {
+  try {
+    const res = await Axios({
+      url: `${domain}/admin/filterCharity?expectedMoney=${searchTerm.expectedMoney}&status=${searchTerm.status}`,
+      method: "get"
+    });
+
+    if (res.data) {
+      dispatch(getCharity(res.data));
+    }
+  } catch (err) {
+    console.log(err);
   }
 };

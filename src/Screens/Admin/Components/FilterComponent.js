@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 
 const conditionExpectedMoney = [
   {
     name: "Dưới 50 triệu",
-    id: 1
+    id: "50"
   },
   {
     name: "Từ  50 - 200 triệu",
-    id: 2
+    id: "50-200"
   },
   {
     name: "Trên 200 triệu",
-    id: 3
+    id: "200"
   }
 ];
 

@@ -53,9 +53,7 @@ const schema = yup
   .required();
 
 function AddCharity(props) {
-  const { Id, charity, getAddCharity, getEditCharity, user } = props;
-
-  console.log(user);
+  const { Id, charity, getAddCharity, getEditCharity } = props;
 
   const defaultValues = {
     id: "" || Id,

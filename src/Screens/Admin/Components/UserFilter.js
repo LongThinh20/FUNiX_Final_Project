@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function UserFilter(props) {
-  const { handleFilterUser } = props;
+  const { handleFilterUser, handeResetFilter } = props;
 
   const [userName, setUserName] = useState("");
   const [phone, setPhone] = useState("");
@@ -50,9 +50,14 @@ function UserFilter(props) {
           Tìm
         </button>
 
-        <a href="/admin/user" className="btn btn-primary mt-2 ms-2">
+        <button
+          className="btn btn-primary mt-2 ms-2"
+          onClick={() => {
+            handeResetFilter();
+          }}
+        >
           Reset
-        </a>
+        </button>
       </form>
     </div>
   );
